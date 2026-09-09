@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NutriTrack - Personal Health Companion</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="logo"><i class="fa-solid fa-leaf"></i> NutriTrack</div>
+        <div class="nav-links">
+            <button class="nav-btn active" onclick="switchTab('home')">Home</button>
+            <button class="nav-btn" onclick="switchTab('quiz')">Get Plan</button>
+            <button class="nav-btn" onclick="switchTab('dashboard')">Dashboard</button>
+            <button class="nav-btn" onclick="switchTab('recipes')">Recipes</button>
+            <button class="nav-btn" onclick="switchTab('admin')">Admin</button>
+        </div>
+    </nav>
+
+    <!-- 1. HOME TAB -->
+    <div id="home" class="tab-content active">
+        <section class="hero">
+            <h1>Transform Your Health with Personalized Nutrition</h1>
+            <p>Smart calorie tracking, customized meal plans, and real-time progress analytics tailored just for you.</p>
+            <button class="btn btn-primary" onclick="switchTab('quiz')">Start Your Journey <i class="fa-solid fa-arrow-right"></i></button>
+        </section>
+    </div>
+
+    <!-- 2. QUIZ TAB -->
+    <div id="quiz" class="tab-content">
+        <div class="quiz-container">
+            <h2>Calculate Your Daily Plan</h2>
+            <form id="healthForm">
+                <div class="form-group">
+                    <label>Age</label>
+                    <input type="number" id="age" required placeholder="e.g. 25">
+                </div>
+                <div class="form-group">
+                    <label>Gender</label>
+                    <select id="gender" required>
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Weight (kg)</label>
+                    <input type="number" id="weight" required placeholder="e.g. 70">
+                </div>
+                <div class="form-group">
+                    <label>Height (cm)</label>
+                    <input type="number" id="height" required placeholder="e.g. 175">
+                </div>
+                <div class="form-group">
+                    <label>Activity Level</label>
+                    <select id="activity" required>
+                        <option value="1.2">Sedentary (Little or no exercise)</option>
+                        <option value="1.375">Lightly Active (1-3 days/week)</option>
+                        <option value="1.55">Moderately Active (3-5 days/week)</option>
+                        <option value="1.725">Very Active (6-7 days/week)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Goal</label>
+                    <select id="goal" required>
+                        <option value="lose">Weight Loss (-500 kcal)</option>
+                        <option value="maintain">Maintain Weight</option>
+                        <option value="gain">Weight Gain (+500 kcal)</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">Generate Plan</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 3. DASHBOARD TAB -->
+    <div id="dashboard" class="tab-content">
+        <div class="grid-2">
+            <div class="card">
+                <h3>Daily Calorie Target</h3>
+                <p id="calorieTargetText">Target: 2000 kcal</p>
+                <div style="max-width: 250px; margin: 0 auto;">
+                    <canvas id="calorieChart"></canvas>
+                </div>
+            </div>
+            <div class="card">
+                <h3>Water Tracker</h3>
+                <p>Track your daily water intake (Goal: 8 Glasses)</p>
+                <div class="water-tracker" id="waterTracker"></div>
+            </div>
+        </div>
+
+        <div class="card" style="margin-top: 2rem;">
+            <h3>Weight Tracking History</h3>
+            <canvas id="weightChart" style="max-height: 300px;"></canvas>
+        </div>
+    </div>
+
+    <!-- 4. RECIPES TAB -->
+    <div id="recipes" class="tab-content">
+        <h2>Healthy Recipe Library</h2>
+        <div class="recipe-grid" id="recipeGrid"></div>
+    </div>
+
+    <!-- 5. ADMIN TAB -->
+    <div id="admin" class="tab-content">
+        <h2>Admin Management Panel</h2>
+        <div class="card">
+            <h3>Registered Users Overview</h3>
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>User Name</th>
+                        <th>Goal</th>
+                        <th>Target (kcal)</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="adminUserList"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+    <!-- External PDF Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <!-- Custom Utility Modules -->
+    <script src="pdfExporter.js" defer></script>
+    <script src="macroChart.js" defer></script>
+    <script src="foodScanner.js" defer></script>
+    
+  
+</body>
+</html>

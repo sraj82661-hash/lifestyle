@@ -2,465 +2,2180 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lifestyle — Fuel Your Health With Smart Nutrition</title>
-    <meta name="description"
-        content="Lifestyle is a smart nutrition companion for calorie tracking, macros, hydration and healthy recipes.">
 
-    <!-- Google Fonts: Plus Jakarta Sans for display, Inter for body -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        Lifestyle — Fuel Your Health With Smart Nutrition
+    </title>
+
+    <meta
+        name="description"
+        content="Lifestyle is a smart nutrition companion for calorie tracking, macros, hydration and healthy vegetarian recipes."
+    >
+
+    <!-- Google Fonts -->
+
+    <link
+        rel="preconnect"
+        href="https://fonts.googleapis.com"
+    >
+
+    <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin
+    >
+
     <link
         href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap"
-        rel="stylesheet">
+        rel="stylesheet"
+    >
 
-    <!-- Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Font Awesome -->
 
-    <link rel="stylesheet" href="styles.css">
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    >
+
+    <!-- Your stylesheet -->
+
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+
 </head>
+
 
 <body data-theme="dark">
 
-    <!-- ============ HEADER / NAVIGATION ============ -->
-    <header class="site-header" id="siteHeader">
+
+    <!-- =====================================================
+         HEADER
+    ====================================================== -->
+
+    <header
+        class="site-header"
+        id="siteHeader"
+    >
+
         <div class="header-inner container">
 
-            <a href="#home" class="brand">
+
+            <a
+                href="#home"
+                class="brand"
+            >
+
                 <span class="brand-mark">
+
                     <i class="fa-solid fa-leaf"></i>
+
                     <span class="brand-dot"></span>
+
                 </span>
-                <span class="brand-name">Lifestyle</span>
+
+                <span class="brand-name">
+                    Lifestyle
+                </span>
+
             </a>
 
-            <nav class="main-nav" id="mainNav" aria-label="Primary">
-                <a href="#home" class="nav-link is-active">Home</a>
-                <a href="#dashboard" class="nav-link">Dashboard</a>
-                <a href="#macro-tracker" class="nav-link">Macro Tracker</a>
-                <a href="#recipes" class="nav-link">Recipes</a>
-                <a href="#water-tracker" class="nav-link">Water Tracker</a>
+
+            <nav
+                class="main-nav"
+                id="mainNav"
+                aria-label="Primary"
+            >
+
+                <a
+                    href="#home"
+                    class="nav-link is-active"
+                >
+                    Home
+                </a>
+
+
+                <a
+                    href="#dashboard"
+                    class="nav-link"
+                >
+                    Dashboard
+                </a>
+
+
+                <a
+                    href="#macro-tracker"
+                    class="nav-link"
+                >
+                    Macro Tracker
+                </a>
+
+
+                <a
+                    href="#recipes"
+                    class="nav-link"
+                >
+                    Recipes
+                </a>
+
+
+                <a
+                    href="#water-tracker"
+                    class="nav-link"
+                >
+                    Water Tracker
+                </a>
+
             </nav>
 
+
             <div class="header-actions">
-                <!-- Dark / Light mode toggle -->
-                <button class="theme-toggle" id="themeToggle" type="button" role="switch" aria-checked="true"
-                    aria-label="Toggle dark and light mode">
+
+
+                <!-- Theme toggle -->
+
+                <button
+                    class="theme-toggle"
+                    id="themeToggle"
+                    type="button"
+                    role="switch"
+                    aria-checked="true"
+                    aria-label="Toggle dark and light mode"
+                >
+
                     <span class="theme-toggle-track">
-                        <i class="fa-solid fa-moon theme-icon theme-icon-moon"></i>
-                        <i class="fa-solid fa-sun theme-icon theme-icon-sun"></i>
+
+                        <i
+                            class="fa-solid fa-moon theme-icon theme-icon-moon"
+                        ></i>
+
+                        <i
+                            class="fa-solid fa-sun theme-icon theme-icon-sun"
+                        ></i>
+
                         <span class="theme-toggle-thumb"></span>
+
                     </span>
+
                 </button>
 
-                <a href="#dashboard" class="btn btn-primary btn-sm">Start Tracking Free</a>
 
-                <button class="nav-burger" id="navBurger" type="button" aria-label="Open menu" aria-expanded="false"
-                    aria-controls="mainNav">
-                    <span></span><span></span><span></span>
+                <a
+                    href="#dashboard"
+                    class="btn btn-primary btn-sm"
+                >
+                    Start Tracking Free
+                </a>
+
+
+                <button
+                    class="nav-burger"
+                    id="navBurger"
+                    type="button"
+                    aria-label="Open menu"
+                    aria-expanded="false"
+                    aria-controls="mainNav"
+                >
+
+                    <span></span>
+                    <span></span>
+                    <span></span>
+
                 </button>
+
             </div>
 
         </div>
+
     </header>
+
+
 
     <main>
 
-        <!-- ============ HERO ============ -->
-        <section class="hero" id="home">
-            <div class="hero-bg" aria-hidden="true">
+
+        <!-- =====================================================
+             HERO
+        ====================================================== -->
+
+        <section
+            class="hero"
+            id="home"
+        >
+
+            <div
+                class="hero-bg"
+                aria-hidden="true"
+            >
+
                 <div class="hero-glow hero-glow-emerald"></div>
+
                 <div class="hero-glow hero-glow-cyan"></div>
+
                 <div class="hero-grid"></div>
+
             </div>
+
 
             <div class="container hero-inner">
+
+
                 <div class="hero-copy">
-                    <p class="hero-kicker"><i class="fa-solid fa-seedling"></i> Smart nutrition, made simple</p>
 
-                    <h1 class="hero-title shine-text">Fuel Your Health<br>With Smart Nutrition</h1>
 
-                    <p class="hero-subtitle">
-                        Lifestyle turns every meal, glass of water and recipe into a clear picture of your day —
-                        so you always know exactly what your body needs next.
+                    <p class="hero-kicker">
+
+                        <i class="fa-solid fa-seedling"></i>
+
+                        Smart nutrition, made simple
+
                     </p>
 
+
+                    <h1 class="hero-title shine-text">
+
+                        Fuel Your Health
+
+                        <br>
+
+                        With Smart Nutrition
+
+                    </h1>
+
+
+                    <p class="hero-subtitle">
+
+                        Lifestyle turns every meal, glass of water
+                        and recipe into a clear picture of your day —
+                        so you always know exactly what your body
+                        needs next.
+
+                    </p>
+
+
                     <div class="hero-actions">
-                        <a href="#dashboard" class="btn btn-primary btn-glow">
-                            <i class="fa-solid fa-bolt"></i> Start Tracking Free
+
+                        <a
+                            href="#dashboard"
+                            class="btn btn-primary btn-glow"
+                        >
+
+                            <i class="fa-solid fa-bolt"></i>
+
+                            Start Tracking Free
+
                         </a>
-                        <a href="#recipes" class="btn btn-ghost">
+
+
+                        <a
+                            href="#recipes"
+                            class="btn btn-ghost"
+                        >
                             Explore Recipes
                         </a>
+
                     </div>
+
 
                     <div class="hero-stats">
+
+
                         <div class="hero-stat">
-                            <span class="hero-stat-value">40K+</span>
-                            <span class="hero-stat-label">Meals logged daily</span>
+
+                            <span class="hero-stat-value">
+                                40K+
+                            </span>
+
+                            <span class="hero-stat-label">
+                                Meals logged daily
+                            </span>
+
                         </div>
+
+
                         <div class="hero-stat">
-                            <span class="hero-stat-value">2,500+</span>
-                            <span class="hero-stat-label">Healthy recipes</span>
+
+                            <span class="hero-stat-value">
+                                2,500+
+                            </span>
+
+                            <span class="hero-stat-label">
+                                Healthy recipes
+                            </span>
+
                         </div>
+
+
                         <div class="hero-stat">
-                            <span class="hero-stat-value">4.9<i class="fa-solid fa-star"></i></span>
-                            <span class="hero-stat-label">Average rating</span>
+
+                            <span class="hero-stat-value">
+
+                                4.9
+
+                                <i class="fa-solid fa-star"></i>
+
+                            </span>
+
+                            <span class="hero-stat-label">
+                                Average rating
+                            </span>
+
                         </div>
+
+
                     </div>
+
                 </div>
+
+
+
+                <!-- Hero visual -->
 
                 <div class="hero-visual">
-                    <!-- Glassmorphism floating cards -->
-                    <div class="glass-card hero-card hero-card-calories">
+
+
+                    <!-- Calories -->
+
+                    <div
+                        class="glass-card hero-card hero-card-calories"
+                    >
+
                         <div class="hero-card-head">
-                            <span>Today's Calories</span>
+
+                            <span>
+                                Today's Calories
+                            </span>
+
                             <i class="fa-solid fa-fire"></i>
+
                         </div>
+
+
                         <div class="hero-card-ring">
-                            <svg viewBox="0 0 120 120" class="ring-svg">
-                                <circle cx="60" cy="60" r="52" class="ring-track"></circle>
-                                <circle cx="60" cy="60" r="52" class="ring-progress ring-progress-emerald"
-                                    style="--ring-value: 0.68;"></circle>
+
+                            <svg
+                                viewBox="0 0 120 120"
+                                class="ring-svg"
+                            >
+
+                                <circle
+                                    cx="60"
+                                    cy="60"
+                                    r="52"
+                                    class="ring-track"
+                                ></circle>
+
+
+                                <circle
+                                    cx="60"
+                                    cy="60"
+                                    r="52"
+                                    class="ring-progress ring-progress-emerald"
+                                    id="heroCalorieRingProgress"
+                                    style="--ring-value:0;"
+                                ></circle>
+
                             </svg>
+
+
                             <div class="hero-card-ring-label">
-                                <strong>1,360</strong>
-                                <span>of 2,000 kcal</span>
+
+                                <strong
+                                    id="heroCaloriesConsumed"
+                                >
+                                    0
+                                </strong>
+
+                                <span>
+
+                                    of
+
+                                    <span
+                                        id="heroCalorieGoal"
+                                    >
+                                        2,000
+                                    </span>
+
+                                    kcal
+
+                                </span>
+
                             </div>
+
                         </div>
+
                     </div>
 
-                    <div class="glass-card hero-card hero-card-water">
+
+
+                    <!-- Water -->
+
+                    <div
+                        class="glass-card hero-card hero-card-water"
+                    >
+
                         <div class="hero-card-head">
-                            <span>Hydration</span>
+
+                            <span>
+                                Hydration
+                            </span>
+
                             <i class="fa-solid fa-droplet"></i>
+
                         </div>
+
+
                         <div class="hero-card-wave">
-                            <div class="hero-card-wave-fill" style="height: 55%;"></div>
+
+                            <div
+                                class="hero-card-wave-fill"
+                                style="height:55%;"
+                            ></div>
+
                         </div>
-                        <p class="hero-card-note">5 / 8 glasses</p>
+
+
+                        <p class="hero-card-note">
+
+                            5 / 8 glasses
+
+                        </p>
+
                     </div>
 
-                    <div class="glass-card hero-card hero-card-macro">
+
+
+                    <!-- Macro split -->
+
+                    <div
+                        class="glass-card hero-card hero-card-macro"
+                    >
+
                         <div class="hero-card-head">
-                            <span>Macro Split</span>
+
+                            <span>
+                                Macro Split
+                            </span>
+
                             <i class="fa-solid fa-chart-pie"></i>
+
                         </div>
+
+
                         <ul class="mini-macro-list">
-                            <li><span class="dot dot-protein"></span> Protein <b>32%</b></li>
-                            <li><span class="dot dot-carbs"></span> Carbs <b>45%</b></li>
-                            <li><span class="dot dot-fats"></span> Fats <b>23%</b></li>
+
+                            <li>
+
+                                <span class="dot dot-protein"></span>
+
+                                Protein
+
+                                <b id="heroProteinPct">
+                                    0%
+                                </b>
+
+                            </li>
+
+
+                            <li>
+
+                                <span class="dot dot-carbs"></span>
+
+                                Carbs
+
+                                <b id="heroCarbsPct">
+                                    0%
+                                </b>
+
+                            </li>
+
+
+                            <li>
+
+                                <span class="dot dot-fats"></span>
+
+                                Fats
+
+                                <b id="heroFatsPct">
+                                    0%
+                                </b>
+
+                            </li>
+
                         </ul>
+
                     </div>
+
                 </div>
+
             </div>
+
         </section>
 
-        <!-- ============ DASHBOARD ============ -->
-        <section class="section" id="dashboard">
+
+
+        <!-- =====================================================
+             DASHBOARD
+        ====================================================== -->
+
+        <section
+            class="section"
+            id="dashboard"
+        >
+
             <div class="container">
+
+
                 <div class="section-head">
-                    <h2>Your day, at a glance</h2>
-                    <p>Track calories, macros and meals in one connected dashboard that updates the moment you log
-                        something.</p>
+
+                    <h2>
+                        Your day, at a glance
+                    </h2>
+
+                    <p>
+
+                        Track calories, macros and meals in one
+                        connected dashboard that updates the moment
+                        you log something.
+
+                    </p>
+
                 </div>
+
+
 
                 <div class="dashboard-grid">
 
-                    <!-- Calorie target card -->
-                    <article class="panel panel-emerald calorie-card">
+
+                    <!-- Calories -->
+
+                    <article
+                        class="panel panel-emerald calorie-card"
+                    >
+
                         <div class="panel-head">
-                            <h3>Daily Calorie Target</h3>
-                            <span class="panel-tag">Goal: 2,000 kcal</span>
+
+                            <h3>
+                                Daily Calorie Target
+                            </h3>
+
+                            <span
+                                class="panel-tag"
+                                id="calorieGoalLabel"
+                            >
+                                Goal: 2,000 kcal
+                            </span>
+
                         </div>
+
 
                         <div class="calorie-ring-wrap">
-                            <svg viewBox="0 0 200 200" class="ring-svg ring-svg-lg" id="calorieRing">
-                                <circle cx="100" cy="100" r="86" class="ring-track"></circle>
-                                <circle cx="100" cy="100" r="86" class="ring-progress ring-progress-emerald"
-                                    id="calorieRingProgress" style="--ring-value: 0.68;"></circle>
+
+
+                            <svg
+                                viewBox="0 0 200 200"
+                                class="ring-svg ring-svg-lg"
+                            >
+
+                                <circle
+                                    cx="100"
+                                    cy="100"
+                                    r="86"
+                                    class="ring-track"
+                                ></circle>
+
+
+                                <circle
+                                    cx="100"
+                                    cy="100"
+                                    r="86"
+                                    class="ring-progress ring-progress-emerald"
+                                    id="calorieRingProgress"
+                                    style="--ring-value:0;"
+                                ></circle>
+
                             </svg>
+
+
                             <div class="calorie-ring-center">
-                                <strong id="caloriesConsumed">1,360</strong>
-                                <span>consumed</span>
+
+                                <strong
+                                    id="caloriesConsumed"
+                                >
+                                    0
+                                </strong>
+
+                                <span>
+                                    consumed
+                                </span>
+
+
                                 <div class="calorie-remaining">
-                                    <span id="caloriesRemaining">640</span> kcal remaining
+
+                                    <span
+                                        id="caloriesRemaining"
+                                    >
+                                        2,000
+                                    </span>
+
+                                    kcal remaining
+
                                 </div>
+
                             </div>
+
                         </div>
+
 
                         <div class="calorie-legend">
+
+
                             <div class="calorie-legend-item">
-                                <span class="dot dot-emerald"></span> Consumed
-                                <b id="legendConsumed">1,360</b>
+
+                                <span class="dot dot-emerald"></span>
+
+                                Consumed
+
+                                <b id="legendConsumed">
+                                    0
+                                </b>
+
                             </div>
+
+
                             <div class="calorie-legend-item">
-                                <span class="dot dot-muted"></span> Remaining
-                                <b id="legendRemaining">640</b>
+
+                                <span class="dot dot-muted"></span>
+
+                                Remaining
+
+                                <b id="legendRemaining">
+                                    2,000
+                                </b>
+
                             </div>
+
+
                         </div>
+
                     </article>
 
-                    <!-- Macro breakdown card -->
-                    <article class="panel panel-cyan macro-card" id="macro-tracker">
+
+
+                    <!-- Macro breakdown -->
+
+                    <article
+                        class="panel panel-cyan macro-card"
+                        id="macro-tracker"
+                    >
+
                         <div class="panel-head">
-                            <h3>Macro Breakdown</h3>
-                            <span class="panel-tag">Today</span>
+
+                            <h3>
+                                Macro Breakdown
+                            </h3>
+
+                            <span class="panel-tag">
+                                Today
+                            </span>
+
                         </div>
+
+
+                        <div
+                            id="lifestyleMacroTargetDisplay"
+                            class="panel-tag"
+                            style="display:inline-block;margin-bottom:20px;"
+                        >
+                            Target: P 0g · C 0g · F 0g
+                        </div>
+
 
                         <div class="macro-bars">
-                            <div class="macro-bar-row">
-                                <div class="macro-bar-label">
-                                    <span><span class="dot dot-protein"></span> Protein</span>
-                                    <span><b id="proteinGrams">98</b>g · <span id="proteinPct">32%</span></span>
-                                </div>
-                                <div class="macro-bar-track">
-                                    <div class="macro-bar-fill macro-fill-protein" id="proteinBar" style="width: 32%;">
-                                    </div>
-                                </div>
-                            </div>
+
 
                             <div class="macro-bar-row">
+
                                 <div class="macro-bar-label">
-                                    <span><span class="dot dot-carbs"></span> Carbs</span>
-                                    <span><b id="carbsGrams">154</b>g · <span id="carbsPct">45%</span></span>
+
+                                    <span>
+
+                                        <span class="dot dot-protein"></span>
+
+                                        Protein
+
+                                    </span>
+
+                                    <span>
+
+                                        <b id="proteinGrams">
+                                            0
+                                        </b>
+
+                                        g ·
+
+                                        <span id="proteinPct">
+                                            0%
+                                        </span>
+
+                                    </span>
+
                                 </div>
+
+
                                 <div class="macro-bar-track">
-                                    <div class="macro-bar-fill macro-fill-carbs" id="carbsBar" style="width: 45%;">
-                                    </div>
+
+                                    <div
+                                        class="macro-bar-fill macro-fill-protein"
+                                        id="proteinBar"
+                                        style="width:0%;"
+                                    ></div>
+
                                 </div>
+
                             </div>
 
+
+
                             <div class="macro-bar-row">
+
                                 <div class="macro-bar-label">
-                                    <span><span class="dot dot-fats"></span> Fats</span>
-                                    <span><b id="fatsGrams">39</b>g · <span id="fatsPct">23%</span></span>
+
+                                    <span>
+
+                                        <span class="dot dot-carbs"></span>
+
+                                        Carbs
+
+                                    </span>
+
+                                    <span>
+
+                                        <b id="carbsGrams">
+                                            0
+                                        </b>
+
+                                        g ·
+
+                                        <span id="carbsPct">
+                                            0%
+                                        </span>
+
+                                    </span>
+
                                 </div>
+
+
                                 <div class="macro-bar-track">
-                                    <div class="macro-bar-fill macro-fill-fats" id="fatsBar" style="width: 23%;"></div>
+
+                                    <div
+                                        class="macro-bar-fill macro-fill-carbs"
+                                        id="carbsBar"
+                                        style="width:0%;"
+                                    ></div>
+
                                 </div>
+
                             </div>
+
+
+
+                            <div class="macro-bar-row">
+
+                                <div class="macro-bar-label">
+
+                                    <span>
+
+                                        <span class="dot dot-fats"></span>
+
+                                        Fats
+
+                                    </span>
+
+                                    <span>
+
+                                        <b id="fatsGrams">
+                                            0
+                                        </b>
+
+                                        g ·
+
+                                        <span id="fatsPct">
+                                            0%
+                                        </span>
+
+                                    </span>
+
+                                </div>
+
+
+                                <div class="macro-bar-track">
+
+                                    <div
+                                        class="macro-bar-fill macro-fill-fats"
+                                        id="fatsBar"
+                                        style="width:0%;"
+                                    ></div>
+
+                                </div>
+
+                            </div>
+
+
                         </div>
+
                     </article>
 
-                    <!-- Quick add meal widget -->
-                    <article class="panel panel-wide quick-add-card">
+
+
+                    <!-- Quick meal -->
+
+                    <article
+                        class="panel panel-wide quick-add-card"
+                    >
+
                         <div class="panel-head">
-                            <h3>Quick Add Meal</h3>
-                            <span class="panel-tag">Log in seconds</span>
+
+                            <h3>
+                                Quick Add Meal
+                            </h3>
+
+                            <span class="panel-tag">
+                                Log in seconds
+                            </span>
+
                         </div>
 
-                        <div class="meal-tabs" id="mealTabs" role="tablist" aria-label="Meal type">
-                            <button class="meal-tab is-active" data-meal="breakfast" type="button" role="tab"
-                                aria-selected="true">
-                                <i class="fa-solid fa-mug-hot"></i> Breakfast
+
+                        <div
+                            class="meal-tabs"
+                            id="mealTabs"
+                            role="tablist"
+                            aria-label="Meal type"
+                        >
+
+                            <button
+                                class="meal-tab is-active"
+                                data-meal="breakfast"
+                                type="button"
+                                role="tab"
+                                aria-selected="true"
+                            >
+
+                                <i class="fa-solid fa-mug-hot"></i>
+
+                                Breakfast
+
                             </button>
-                            <button class="meal-tab" data-meal="lunch" type="button" role="tab" aria-selected="false">
-                                <i class="fa-solid fa-bowl-rice"></i> Lunch
+
+
+                            <button
+                                class="meal-tab"
+                                data-meal="lunch"
+                                type="button"
+                                role="tab"
+                                aria-selected="false"
+                            >
+
+                                <i class="fa-solid fa-bowl-rice"></i>
+
+                                Lunch
+
                             </button>
-                            <button class="meal-tab" data-meal="dinner" type="button" role="tab" aria-selected="false">
-                                <i class="fa-solid fa-utensils"></i> Dinner
+
+
+                            <button
+                                class="meal-tab"
+                                data-meal="dinner"
+                                type="button"
+                                role="tab"
+                                aria-selected="false"
+                            >
+
+                                <i class="fa-solid fa-utensils"></i>
+
+                                Dinner
+
                             </button>
-                            <button class="meal-tab" data-meal="snacks" type="button" role="tab" aria-selected="false">
-                                <i class="fa-solid fa-apple-whole"></i> Snacks
+
+
+                            <button
+                                class="meal-tab"
+                                data-meal="snacks"
+                                type="button"
+                                role="tab"
+                                aria-selected="false"
+                            >
+
+                                <i class="fa-solid fa-apple-whole"></i>
+
+                                Snacks
+
                             </button>
+
                         </div>
 
-                        <form class="quick-add-form" id="quickAddForm">
+
+                        <form
+                            class="quick-add-form"
+                            id="quickAddForm"
+                        >
+
                             <div class="form-field">
-                                <label for="mealName">Food</label>
-                                <input type="text" id="mealName" name="mealName" placeholder="e.g. Grilled chicken bowl"
-                                    autocomplete="off">
+
+                                <label for="mealName">
+                                    Food
+                                </label>
+
+                                <input
+                                    type="text"
+                                    id="mealName"
+                                    placeholder="e.g. Paneer bowl"
+                                    autocomplete="off"
+                                >
+
                             </div>
+
+
                             <div class="form-field form-field-sm">
-                                <label for="mealCalories">Calories</label>
-                                <input type="number" id="mealCalories" name="mealCalories" placeholder="420" min="0"
-                                    inputmode="numeric">
+
+                                <label for="mealCalories">
+                                    Calories
+                                </label>
+
+                                <input
+                                    type="number"
+                                    id="mealCalories"
+                                    placeholder="420"
+                                    min="0"
+                                >
+
                             </div>
+
+
                             <div class="form-field form-field-sm">
-                                <label for="mealProtein">Protein (g)</label>
-                                <input type="number" id="mealProtein" name="mealProtein" placeholder="35" min="0"
-                                    inputmode="numeric">
+
+                                <label for="mealProtein">
+                                    Protein (g)
+                                </label>
+
+                                <input
+                                    type="number"
+                                    id="mealProtein"
+                                    placeholder="25"
+                                    min="0"
+                                >
+
                             </div>
+
+
                             <div class="form-field form-field-sm">
-                                <label for="mealCarbs">Carbs (g)</label>
-                                <input type="number" id="mealCarbs" name="mealCarbs" placeholder="40" min="0"
-                                    inputmode="numeric">
+
+                                <label for="mealCarbs">
+                                    Carbs (g)
+                                </label>
+
+                                <input
+                                    type="number"
+                                    id="mealCarbs"
+                                    placeholder="40"
+                                    min="0"
+                                >
+
                             </div>
+
+
                             <div class="form-field form-field-sm">
-                                <label for="mealFats">Fats (g)</label>
-                                <input type="number" id="mealFats" name="mealFats" placeholder="12" min="0"
-                                    inputmode="numeric">
+
+                                <label for="mealFats">
+                                    Fats (g)
+                                </label>
+
+                                <input
+                                    type="number"
+                                    id="mealFats"
+                                    placeholder="12"
+                                    min="0"
+                                >
+
                             </div>
-                            <button type="submit" class="btn btn-primary form-submit">
-                                <i class="fa-solid fa-plus"></i> Add to <span id="activeMealLabel">Breakfast</span>
+
+
+                            <button
+                                type="submit"
+                                class="btn btn-primary form-submit"
+                            >
+
+                                <i class="fa-solid fa-plus"></i>
+
+                                Add to
+
+                                <span id="activeMealLabel">
+                                    Breakfast
+                                </span>
+
                             </button>
+
                         </form>
 
-                        <ul class="meal-log" id="mealLog" aria-live="polite">
-                            <li class="meal-log-empty" id="mealLogEmpty">No meals logged for Breakfast yet — add your
-                                first one above.</li>
+
+
+                        <!-- Manual food button -->
+
+                        <div class="manual-food-actions">
+
+                            <button
+                                type="button"
+                                class="btn btn-ghost btn-sm"
+                                id="openManualFoodBtn"
+                            >
+
+                                <i class="fa-solid fa-bowl-food"></i>
+
+                                Add Indian / Manual Food
+
+                            </button>
+
+                        </div>
+
+
+                        <ul
+                            class="meal-log"
+                            id="mealLog"
+                            aria-live="polite"
+                        >
+
+                            <li class="meal-log-empty">
+
+                                No meals logged for Breakfast yet —
+                                add your first one above.
+
+                            </li>
+
                         </ul>
+
                     </article>
 
                 </div>
+
             </div>
+
         </section>
 
-        <!-- ============ WATER TRACKER ============ -->
-        <section class="section section-alt" id="water-tracker">
+
+
+        <!-- =====================================================
+             WATER
+        ====================================================== -->
+
+        <section
+            class="section section-alt"
+            id="water-tracker"
+        >
+
             <div class="container">
+
                 <div class="water-layout">
 
+
                     <div class="water-copy">
-                        <p class="eyebrow-plain">Hydration</p>
-                        <h2>Keep your water intake on track</h2>
-                        <p class="section-lead">
-                            Tap a glass every time you drink. Lifestyle keeps a running total against your
-                            daily goal so hydration never slips your mind.
+
+                        <p class="eyebrow-plain">
+                            Hydration
                         </p>
 
+                        <h2>
+                            Keep your water intake on track
+                        </h2>
+
+                        <p class="section-lead">
+
+                            Tap a glass every time you drink.
+                            Lifestyle keeps a running total against
+                            your daily goal.
+
+                        </p>
+
+
                         <div class="water-goal-box">
+
                             <div class="water-goal-item">
-                                <span class="water-goal-value" id="waterGoalGlasses">8</span>
-                                <span class="water-goal-label">glasses / day</span>
+
+                                <span
+                                    class="water-goal-value"
+                                    id="waterGoalGlasses"
+                                >
+                                    8
+                                </span>
+
+                                <span class="water-goal-label">
+                                    glasses / day
+                                </span>
+
                             </div>
-                            <div class="water-goal-divider" aria-hidden="true"></div>
+
+
+                            <div
+                                class="water-goal-divider"
+                            ></div>
+
+
                             <div class="water-goal-item">
-                                <span class="water-goal-value" id="waterGoalLitres">2.5L</span>
-                                <span class="water-goal-label">daily target</span>
+
+                                <span
+                                    class="water-goal-value"
+                                    id="waterGoalLitres"
+                                >
+                                    2.5L
+                                </span>
+
+                                <span class="water-goal-label">
+                                    daily target
+                                </span>
+
                             </div>
+
                         </div>
+
 
                         <div class="water-controls">
-                            <button class="btn btn-ghost btn-sm" id="waterResetBtn" type="button">
-                                <i class="fa-solid fa-rotate-left"></i> Reset day
+
+                            <button
+                                class="btn btn-ghost btn-sm"
+                                id="waterResetBtn"
+                                type="button"
+                            >
+
+                                <i class="fa-solid fa-rotate-left"></i>
+
+                                Reset day
+
                             </button>
+
                         </div>
+
                     </div>
+
+
 
                     <div class="water-panel">
-                        <div class="water-bottle" aria-hidden="false" aria-label="Water intake progress">
-                            <div class="water-bottle-fill" id="waterFill" style="height: 0%;"></div>
+
+                        <div
+                            class="water-bottle"
+                            aria-label="Water intake progress"
+                        >
+
+                            <div
+                                class="water-bottle-fill"
+                                id="waterFill"
+                                style="height:0%;"
+                            ></div>
+
+
                             <div class="water-bottle-markers">
-                                <span></span><span></span><span></span><span></span>
+
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                                <span></span>
+
                             </div>
+
+
                             <div class="water-bottle-readout">
-                                <strong id="waterAmountLitres">0.0L</strong>
-                                <span id="waterAmountGlasses">0 of 8 glasses</span>
+
+                                <strong id="waterAmountLitres">
+                                    0.0L
+                                </strong>
+
+                                <span id="waterAmountGlasses">
+                                    0 of 8 glasses
+                                </span>
+
                             </div>
+
                         </div>
 
-                        <div class="water-glasses" id="waterGlasses" aria-label="Tap to log a glass of water">
-                            <!-- 8 glass buttons injected by JS -->
-                        </div>
+
+                        <div
+                            class="water-glasses"
+                            id="waterGlasses"
+                        ></div>
+
                     </div>
 
                 </div>
+
             </div>
+
         </section>
 
-        <!-- ============ RECIPES ============ -->
-        <section class="section" id="recipes">
+
+
+        <!-- =====================================================
+             RECIPES
+        ====================================================== -->
+
+        <section
+            class="section"
+            id="recipes"
+        >
+
             <div class="container">
+
                 <div class="section-head">
-                    <h2>Recipes that fit your goals</h2>
-                    <p>Search or filter by the macros and prep time that matter to you today.</p>
+
+                    <h2>
+                        Recipes that fit your goals
+                    </h2>
+
+                    <p>
+
+                        Search vegetarian recipes or filter by the
+                        macros and prep time that matter to you.
+
+                    </p>
+
                 </div>
+
 
                 <div class="recipe-toolbar">
+
+
                     <div class="recipe-search">
+
                         <i class="fa-solid fa-magnifying-glass"></i>
-                        <input type="search" id="recipeSearch" placeholder="Search recipes, ingredients, cuisines...">
+
+                        <input
+                            type="search"
+                            id="recipeSearch"
+                            placeholder="Search recipes, ingredients, cuisines..."
+                            autocomplete="off"
+                        >
+
                     </div>
 
-                    <div class="recipe-filters" id="recipeFilters" role="group" aria-label="Filter recipes">
-                        <button class="filter-tag is-active" data-filter="all" type="button">All</button>
-                        <button class="filter-tag" data-filter="high-protein" type="button">High Protein</button>
-                        <button class="filter-tag" data-filter="low-carb" type="button">Low Carb</button>
-                        <button class="filter-tag" data-filter="vegan" type="button">Vegan</button>
-                        <button class="filter-tag" data-filter="keto" type="button">Keto</button>
-                        <button class="filter-tag" data-filter="quick-prep" type="button">Quick Prep</button>
+
+                    <div
+                        class="recipe-filters"
+                        id="recipeFilters"
+                        role="group"
+                        aria-label="Filter recipes"
+                    >
+
+                        <button
+                            class="filter-tag is-active"
+                            data-filter="all"
+                            type="button"
+                        >
+                            All
+                        </button>
+
+
+                        <button
+                            class="filter-tag"
+                            data-filter="vegetarian"
+                            type="button"
+                        >
+                            Vegetarian
+                        </button>
+
+
+                        <button
+                            class="filter-tag"
+                            data-filter="high-protein"
+                            type="button"
+                        >
+                            High Protein
+                        </button>
+
+
+                        <button
+                            class="filter-tag"
+                            data-filter="low-carb"
+                            type="button"
+                        >
+                            Low Carb
+                        </button>
+
+
+                        <button
+                            class="filter-tag"
+                            data-filter="vegan"
+                            type="button"
+                        >
+                            Vegan
+                        </button>
+
+
+                        <button
+                            class="filter-tag"
+                            data-filter="keto"
+                            type="button"
+                        >
+                            Keto
+                        </button>
+
+
+                        <button
+                            class="filter-tag"
+                            data-filter="quick-prep"
+                            type="button"
+                        >
+                            Quick Prep
+                        </button>
+
                     </div>
+
                 </div>
 
-                <div class="recipe-grid" id="recipeGrid">
-                    <!-- Recipe cards injected by JS -->
-                </div>
 
-                <p class="recipe-empty" id="recipeEmpty" hidden>No recipes match your search — try a different tag or
-                    keyword.</p>
+                <div
+                    id="recipeRecommendation"
+                    class="recipe-recommendation"
+                    hidden
+                ></div>
+
+
+                <div
+                    class="recipe-grid"
+                    id="recipeGrid"
+                ></div>
+
+
+                <p
+                    class="recipe-empty"
+                    id="recipeEmpty"
+                    hidden
+                >
+                    No recipes match your search —
+                    try another food or filter.
+                </p>
+
             </div>
+
         </section>
 
-        <!-- ============ NEWSLETTER / CTA STRIP ============ -->
+
+
+        <!-- =====================================================
+             CTA
+        ====================================================== -->
+
         <section class="cta-strip">
+
             <div class="container cta-strip-inner">
+
                 <div>
-                    <h2>Your next healthy habit starts today</h2>
-                    <p>Create a free account and Lifestyle will build your first day of tracking for you.</p>
+
+                    <h2>
+                        Your next healthy habit starts today
+                    </h2>
+
+                    <p>
+
+                        Lifestyle helps you build better everyday
+                        nutrition habits with simple tracking.
+
+                    </p>
+
                 </div>
-                <a href="#dashboard" class="btn btn-primary btn-glow">Start Tracking Free</a>
+
+
+                <a
+                    href="#dashboard"
+                    class="btn btn-primary btn-glow"
+                >
+                    Start Tracking Free
+                </a>
+
             </div>
+
         </section>
 
     </main>
 
-    <!-- ============ FOOTER ============ -->
+
+
+    <!-- =====================================================
+         FOOTER
+    ====================================================== -->
+
     <footer class="site-footer">
+
         <div class="container footer-inner">
 
+
             <div class="footer-brand">
-                <a href="#home" class="brand">
+
+                <a
+                    href="#home"
+                    class="brand"
+                >
+
                     <span class="brand-mark">
+
                         <i class="fa-solid fa-leaf"></i>
+
                         <span class="brand-dot"></span>
+
                     </span>
-                    <span class="brand-name">Lifestyle</span>
+
+                    <span class="brand-name">
+                        Lifestyle
+                    </span>
+
                 </a>
-                <p>Smart nutrition, hydration and recipe tracking for a healthier everyday.</p>
+
+
+                <p>
+                    Smart vegetarian nutrition, hydration
+                    and recipe tracking for a healthier everyday.
+                </p>
+
+
                 <div class="footer-social">
-                    <a href="#" aria-label="Lifestyle on Instagram"><i class="fa-brands fa-instagram"></i></a>
-                    <a href="#" aria-label="Lifestyle on X"><i class="fa-brands fa-x-twitter"></i></a>
-                    <a href="#" aria-label="Lifestyle on Pinterest"><i class="fa-brands fa-pinterest-p"></i></a>
-                    <a href="#" aria-label="Lifestyle on YouTube"><i class="fa-brands fa-youtube"></i></a>
+
+                    <a
+                        href="#"
+                        aria-label="Instagram"
+                    >
+                        <i class="fa-brands fa-instagram"></i>
+                    </a>
+
+                    <a
+                        href="#"
+                        aria-label="X"
+                    >
+                        <i class="fa-brands fa-x-twitter"></i>
+                    </a>
+
+                    <a
+                        href="#"
+                        aria-label="Pinterest"
+                    >
+                        <i class="fa-brands fa-pinterest-p"></i>
+                    </a>
+
+                    <a
+                        href="#"
+                        aria-label="YouTube"
+                    >
+                        <i class="fa-brands fa-youtube"></i>
+                    </a>
+
                 </div>
+
             </div>
 
-            <div class="footer-col">
-                <h4>Product</h4>
-                <a href="#dashboard">Dashboard</a>
-                <a href="#macro-tracker">Macro Tracker</a>
-                <a href="#water-tracker">Water Tracker</a>
-                <a href="#recipes">Recipes</a>
-            </div>
+
 
             <div class="footer-col">
-                <h4>Company</h4>
-                <a href="#">About</a>
-                <a href="#">Blog</a>
-                <a href="#">Careers</a>
-                <a href="#">Contact</a>
+
+                <h4>
+                    Product
+                </h4>
+
+                <a href="#dashboard">
+                    Dashboard
+                </a>
+
+                <a href="#macro-tracker">
+                    Macro Tracker
+                </a>
+
+                <a href="#water-tracker">
+                    Water Tracker
+                </a>
+
+                <a href="#recipes">
+                    Recipes
+                </a>
+
             </div>
 
+
+
             <div class="footer-col">
-                <h4>Support</h4>
-                <a href="#">Help Center</a>
-                <a href="#">Privacy Policy</a>
-                <a href="#">Terms of Service</a>
+
+                <h4>
+                    Company
+                </h4>
+
+                <a href="#">
+                    About
+                </a>
+
+                <a href="#">
+                    Blog
+                </a>
+
+                <a href="#">
+                    Careers
+                </a>
+
+                <a href="#">
+                    Contact
+                </a>
+
+            </div>
+
+
+
+            <div class="footer-col">
+
+                <h4>
+                    Support
+                </h4>
+
+                <a href="#">
+                    Help Center
+                </a>
+
+                <a href="#">
+                    Privacy Policy
+                </a>
+
+                <a href="#">
+                    Terms of Service
+                </a>
+
             </div>
 
         </div>
+
 
         <div class="footer-bottom">
+
             <div class="container footer-bottom-inner">
-                <p>&copy; <span id="footerYear"></span> Lifestyle. All rights reserved.</p>
-                <p>Built for better everyday nutrition.</p>
+
+                <p>
+
+                    &copy;
+
+                    <span id="footerYear"></span>
+
+                    Lifestyle.
+                    All rights reserved.
+
+                </p>
+
+
+                <p>
+                    Built for better everyday nutrition.
+                </p>
+
             </div>
+
         </div>
+
     </footer>
-  <link rel="stylesheet" href="style.css">
+
+
+
+    <!-- =====================================================
+         PROFILE ONBOARDING MODAL
+    ====================================================== -->
+
+    <div
+        id="lifestyleProfileModal"
+        class="lifestyle-profile-modal"
+        hidden
+        aria-hidden="true"
+    >
+
+        <div class="lifestyle-profile-backdrop"></div>
+
+
+        <div
+            class="lifestyle-profile-dialog"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="lifestyleProfileTitle"
+        >
+
+
+            <div class="lifestyle-profile-header">
+
+                <span class="lifestyle-profile-eyebrow">
+
+                    <i class="fa-solid fa-leaf"></i>
+
+                    Personalize Lifestyle
+
+                </span>
+
+
+                <h2 id="lifestyleProfileTitle">
+
+                    Let's set up your profile
+
+                </h2>
+
+
+                <p>
+
+                    Tell us about yourself and we'll calculate
+                    your estimated daily nutrition targets.
+
+                </p>
+
+            </div>
+
+
+
+            <form
+                id="lifestyleProfileForm"
+                novalidate
+            >
+
+
+                <div class="lifestyle-profile-grid">
+
+
+                    <!-- Name -->
+
+                    <div class="lifestyle-profile-field full">
+
+                        <label for="profileName">
+                            Name
+                        </label>
+
+                        <input
+                            type="text"
+                            id="profileName"
+                            placeholder="e.g. Raj"
+                            maxlength="60"
+                            required
+                        >
+
+                    </div>
+
+
+                    <!-- Age -->
+
+                    <div class="lifestyle-profile-field">
+
+                        <label for="profileAge">
+                            Age
+                        </label>
+
+                        <input
+                            type="number"
+                            id="profileAge"
+                            min="13"
+                            max="120"
+                            placeholder="25"
+                            required
+                        >
+
+                    </div>
+
+
+                    <!-- Gender -->
+
+                    <div class="lifestyle-profile-field">
+
+                        <label for="profileGender">
+                            Gender
+                        </label>
+
+                        <select
+                            id="profileGender"
+                            required
+                        >
+
+                            <option value="">
+                                Select gender
+                            </option>
+
+                            <option value="male">
+                                Male
+                            </option>
+
+                            <option value="female">
+                                Female
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <!-- Height -->
+
+                    <div class="lifestyle-profile-field">
+
+                        <label for="profileHeight">
+                            Height (cm)
+                        </label>
+
+                        <input
+                            type="number"
+                            id="profileHeight"
+                            min="100"
+                            max="250"
+                            step="0.1"
+                            placeholder="175"
+                            required
+                        >
+
+                    </div>
+
+
+                    <!-- Weight -->
+
+                    <div class="lifestyle-profile-field">
+
+                        <label for="profileWeight">
+                            Weight (kg)
+                        </label>
+
+                        <input
+                            type="number"
+                            id="profileWeight"
+                            min="30"
+                            max="300"
+                            step="0.1"
+                            placeholder="70"
+                            required
+                        >
+
+                    </div>
+
+
+                    <!-- Goal -->
+
+                    <div class="lifestyle-profile-field full">
+
+                        <label for="profileGoal">
+                            Primary Goal
+                        </label>
+
+                        <select
+                            id="profileGoal"
+                            required
+                        >
+
+                            <option value="">
+                                Select your goal
+                            </option>
+
+                            <option value="weight-loss">
+                                Weight Loss
+                            </option>
+
+                            <option value="maintenance">
+                                Maintenance
+                            </option>
+
+                            <option value="muscle-gain">
+                                Muscle Gain
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                </div>
+
+
+
+                <div
+                    id="profileFormError"
+                    class="lifestyle-profile-error"
+                    hidden
+                ></div>
+
+
+
+                <div
+                    id="profilePreview"
+                    class="lifestyle-profile-preview"
+                    hidden
+                >
+
+                    <div class="lifestyle-profile-preview-title">
+
+                        Estimated daily targets
+
+                    </div>
+
+
+                    <div class="lifestyle-profile-preview-grid">
+
+
+                        <div>
+
+                            <strong id="previewCalories">
+                                0
+                            </strong>
+
+                            <span>
+                                Calories
+                            </span>
+
+                        </div>
+
+
+                        <div>
+
+                            <strong id="previewProtein">
+                                0g
+                            </strong>
+
+                            <span>
+                                Protein
+                            </span>
+
+                        </div>
+
+
+                        <div>
+
+                            <strong id="previewCarbs">
+                                0g
+                            </strong>
+
+                            <span>
+                                Carbs
+                            </span>
+
+                        </div>
+
+
+                        <div>
+
+                            <strong id="previewFats">
+                                0g
+                            </strong>
+
+                            <span>
+                                Fats
+                            </span>
+
+                        </div>
+
+
+                    </div>
+
+                </div>
+
+
+
+                <button
+                    type="submit"
+                    class="btn btn-primary lifestyle-profile-submit"
+                >
+
+                    <i class="fa-solid fa-bolt"></i>
+
+                    Calculate My Targets
+
+                </button>
+
+            </form>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- =====================================================
+         MANUAL FOOD MODAL
+    ====================================================== -->
+
+    <div
+        id="manualFoodModal"
+        class="manual-food-modal"
+        hidden
+        aria-hidden="true"
+    >
+
+        <div
+            class="manual-food-backdrop"
+            id="manualFoodBackdrop"
+        ></div>
+
+
+        <div
+            class="manual-food-dialog"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="manualFoodTitle"
+        >
+
+
+            <button
+                type="button"
+                class="manual-food-close"
+                id="closeManualFoodBtn"
+                aria-label="Close manual food"
+            >
+
+                <i class="fa-solid fa-xmark"></i>
+
+            </button>
+
+
+
+            <div class="manual-food-header">
+
+                <span class="manual-food-eyebrow">
+
+                    <i class="fa-solid fa-leaf"></i>
+
+                    Vegetarian Food
+
+                </span>
+
+
+                <h2 id="manualFoodTitle">
+                    Add food manually
+                </h2>
+
+
+                <p>
+
+                    Search Indian or international vegetarian
+                    foods and choose a familiar serving size.
+
+                </p>
+
+            </div>
+
+
+
+            <form id="manualFoodForm">
+
+
+                <div class="manual-food-field">
+
+                    <label for="manualFoodSearch">
+                        Search food
+                    </label>
+
+                    <input
+                        type="search"
+                        id="manualFoodSearch"
+                        placeholder="Try rice, dal, paneer..."
+                        autocomplete="off"
+                    >
+
+                </div>
+
+
+
+                <div class="manual-food-field">
+
+                    <label for="manualFoodSelect">
+                        Food
+                    </label>
+
+                    <select id="manualFoodSelect">
+
+                        <option value="">
+                            Select a food
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+
+                <div class="manual-food-grid">
+
+
+                    <div class="manual-food-field">
+
+                        <label for="manualFoodAmount">
+                            Quantity
+                        </label>
+
+                        <input
+                            type="number"
+                            id="manualFoodAmount"
+                            value="1"
+                            min="0.1"
+                            step="0.1"
+                        >
+
+                    </div>
+
+
+
+                    <div class="manual-food-field">
+
+                        <label for="manualFoodUnit">
+                            Serving size
+                        </label>
+
+                        <select id="manualFoodUnit">
+
+                            <option value="serving">
+                                1 Serving
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                </div>
+
+
+
+                <div
+                    class="manual-food-nutrition"
+                    id="manualFoodNutrition"
+                >
+
+                    <div class="manual-food-nutrition-head">
+                        Nutrition for this amount
+                    </div>
+
+
+
+                    <div class="manual-food-main-nutrients">
+
+
+                        <div>
+
+                            <strong id="manualCalories">
+                                0
+                            </strong>
+
+                            <span>
+                                Calories
+                            </span>
+
+                        </div>
+
+
+                        <div>
+
+                            <strong id="manualProtein">
+                                0g
+                            </strong>
+
+                            <span>
+                                Protein
+                            </span>
+
+                        </div>
+
+
+                        <div>
+
+                            <strong id="manualCarbs">
+                                0g
+                            </strong>
+
+                            <span>
+                                Carbs
+                            </span>
+
+                        </div>
+
+
+                        <div>
+
+                            <strong id="manualFats">
+                                0g
+                            </strong>
+
+                            <span>
+                                Fats
+                            </span>
+
+                        </div>
+
+
+                    </div>
+
+
+
+                    <div class="manual-food-micro-grid">
+
+
+                        <div>
+                            <span>Fiber</span>
+                            <strong id="manualFiber">0g</strong>
+                        </div>
+
+
+                        <div>
+                            <span>Sodium</span>
+                            <strong id="manualSodium">0mg</strong>
+                        </div>
+
+
+                        <div>
+                            <span>Potassium</span>
+                            <strong id="manualPotassium">0mg</strong>
+                        </div>
+
+
+                        <div>
+                            <span>Calcium</span>
+                            <strong id="manualCalcium">0mg</strong>
+                        </div>
+
+
+                        <div>
+                            <span>Iron</span>
+                            <strong id="manualIron">0mg</strong>
+                        </div>
+
+
+                        <div>
+                            <span>Vitamin C</span>
+                            <strong id="manualVitaminC">0mg</strong>
+                        </div>
+
+
+                    </div>
+
+                </div>
+
+
+
+                <button
+                    type="submit"
+                    class="btn btn-primary manual-food-submit"
+                >
+
+                    <i class="fa-solid fa-plus"></i>
+
+                    Add Food
+
+                </button>
+
+            </form>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- =====================================================
+         JS
+    ====================================================== -->
+
+    <script src="app.js"></script>
+
 </body>
 
 </html>

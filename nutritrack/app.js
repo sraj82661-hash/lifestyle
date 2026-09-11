@@ -1,44 +1,309 @@
-/* =====================================================================
-   LIFESTYLE — COMPLETE JAVASCRIPT
-===================================================================== */
+/* ================================================================
+   LIFESTYLE — COMPLETE SCRIPT.JS
+   ================================================================
+   Features:
+   - Dark / Light theme
+   - Mobile navigation
+   - Scroll spy
+   - Personal profile onboarding
+   - Personalized calories + macros
+   - Dashboard calorie tracker
+   - Quick Add Meal
+   - Meal log
+   - Water tracker
+   - 500+ vegetarian recipes
+   - Vegetarian recipe search
+   - Recipe filters
+   - Recipe images
+   - Recipe detail popup
+   - Recipe ingredients
+   - Recipe steps
+   - Recipe nutrition
+   - Add recipe to meal
+   - Indian / Manual food
+   - Household serving sizes
+   - Macro + micronutrient display
+   - LocalStorage
+   ================================================================ */
 
 
-/* =====================================================================
-   APP START
-===================================================================== */
+/* ================================================================
+   GLOBAL STORAGE
+   ================================================================ */
 
-document.addEventListener(
-    'DOMContentLoaded',
-    () => {
+const STORAGE = {
+    theme: "lifestyle-theme",
+    profile: "lifestyle-profile-v5",
+    meals: "lifestyle-meals-v5",
+    water: "lifestyle-water-v5"
+};
 
-        initTheme();
 
-        initMobileNav();
+/* ================================================================
+   GLOBAL STATE
+   ================================================================ */
 
-        initScrollSpy();
+const dashboardState = {
+    calorieGoal: 2000,
 
-        initDashboard();
+    activeMeal: "breakfast",
 
-        initWaterTracker();
+    meals: {
+        breakfast: [],
+        lunch: [],
+        dinner: [],
+        snacks: []
+    }
+};
 
-        initRecipes();
 
-        initLifestyleProfile();
+const waterState = {
+    goalGlasses: 8,
+    goalLitres: 2.5,
+    count: 0
+};
 
-        initManualFoodEntry();
 
-        document.getElementById(
-            'footerYear'
-        ).textContent =
-            new Date().getFullYear();
+const profileState = {
+    profile: null,
+    nutrition: null
+};
+
+
+const recipeState = {
+    filter: "all",
+    search: ""
+};
+
+
+let activeRecipe = null;
+
+
+/* ================================================================
+   START APP
+   ================================================================ */
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    loadEverything();
+
+    initTheme();
+
+    initMobileNav();
+
+    initScrollSpy();
+
+    initProfile();
+
+    initDashboard();
+
+    initWaterTracker();
+
+    initRecipes();
+
+    initRecipeModal();
+
+    initManualFood();
+
+    updateProfileUI();
+
+    updateDashboard();
+
+    updateWater();
+
+    const year = document.getElementById("footerYear");
+
+    if (year) {
+        year.textContent = new Date().getFullYear();
+    }
+
+});
+
+
+/* ================================================================
+   LOAD EVERYTHING
+   ================================================================ */
+
+function loadEverything() {
+
+    /* ---------------- PROFILE ---------------- */
+
+    try {
+
+        const savedProfile =
+            localStorage.getItem(STORAGE.profile);
+
+        if (savedProfile) {
+
+            const parsed =
+                JSON.parse(savedProfile);
+
+            if (parsed && parsed.profile) {
+
+                profileState.profile =
+                    parsed.profile;
+
+                profileState.nutrition =
+                    parsed.nutrition || calculateNutrition(parsed.profile);
+
+                dashboardState.calorieGoal =
+                    Number(
+                        profileState.nutrition.calories
+                    ) || 2000;
+
+            }
+
+        }
+
+    } catch (error) {
+
+        console.warn(
+            "Profile loading failed:",
+            error
+        );
 
     }
-);
 
 
-/* =====================================================================
-   THEME
-===================================================================== */
+    /* ---------------- MEALS ---------------- */
+
+    try {
+
+        const savedMeals =
+            localStorage.getItem(STORAGE.meals);
+
+        if (savedMeals) {
+
+            const parsed =
+                JSON.parse(savedMeals);
+
+            if (parsed) {
+
+                dashboardState.meals = {
+
+                    breakfast:
+                        Array.isArray(parsed.breakfast)
+                            ? parsed.breakfast
+                            : [],
+
+                    lunch:
+                        Array.isArray(parsed.lunch)
+                            ? parsed.lunch
+                            : [],
+
+                    dinner:
+                        Array.isArray(parsed.dinner)
+                            ? parsed.dinner
+                            : [],
+
+                    snacks:
+                        Array.isArray(parsed.snacks)
+                            ? parsed.snacks
+                            : []
+
+                };
+
+            }
+
+        }
+
+    } catch (error) {
+
+        console.warn(
+            "Meal loading failed:",
+            error
+        );
+
+    }
+
+
+    /* ---------------- WATER ---------------- */
+
+    try {
+
+        const savedWater =
+            localStorage.getItem(STORAGE.water);
+
+        if (savedWater !== null) {
+
+            waterState.count =
+                Math.max(
+                    0,
+                    Math.min(
+                        Number(savedWater) || 0,
+                        waterState.goalGlasses
+                    )
+                );
+
+        }
+
+    } catch (error) {
+
+        console.warn(
+            "Water loading failed:",
+            error
+        );
+
+    }
+
+}
+
+
+/* ================================================================
+   SAVE MEALS
+   ================================================================ */
+
+function saveMeals() {
+
+    try {
+
+        localStorage.setItem(
+            STORAGE.meals,
+            JSON.stringify(
+                dashboardState.meals
+            )
+        );
+
+    } catch (error) {
+
+        console.warn(
+            "Meal save failed:",
+            error
+        );
+
+    }
+
+}
+
+
+/* ================================================================
+   SAVE WATER
+   ================================================================ */
+
+function saveWater() {
+
+    try {
+
+        localStorage.setItem(
+            STORAGE.water,
+            String(waterState.count)
+        );
+
+    } catch (error) {
+
+        console.warn(
+            "Water save failed:",
+            error
+        );
+
+    }
+
+}
+
+
+/* ================================================================
+   1. THEME
+   ================================================================ */
 
 function initTheme() {
 
@@ -47,96 +312,99 @@ function initTheme() {
 
     const toggle =
         document.getElementById(
-            'themeToggle'
+            "themeToggle"
         );
 
-    const STORAGE_KEY =
-        'lifestyle-theme';
-
-
-    if (!toggle) {
+    if (!body) {
         return;
     }
 
 
     const saved =
         localStorage.getItem(
-            STORAGE_KEY
+            STORAGE.theme
         );
 
 
     const theme =
-        saved === 'light'
-            ? 'light'
-            : 'dark';
+        saved === "light"
+            ? "light"
+            : "dark";
 
 
     applyTheme(theme);
 
 
-    toggle.addEventListener(
-        'click',
-        () => {
+    if (toggle) {
 
-            const current =
-                body.getAttribute(
-                    'data-theme'
+        toggle.addEventListener(
+            "click",
+            function () {
+
+                const current =
+                    body.getAttribute(
+                        "data-theme"
+                    ) || "dark";
+
+
+                const next =
+                    current === "dark"
+                        ? "light"
+                        : "dark";
+
+
+                applyTheme(next);
+
+
+                localStorage.setItem(
+                    STORAGE.theme,
+                    next
                 );
 
+            }
+        );
 
-            const next =
-                current === 'dark'
-                    ? 'light'
-                    : 'dark';
-
-
-            applyTheme(next);
+    }
 
 
-            localStorage.setItem(
-                STORAGE_KEY,
-                next
+    function applyTheme(themeName) {
+
+        body.setAttribute(
+            "data-theme",
+            themeName
+        );
+
+
+        if (toggle) {
+
+            toggle.setAttribute(
+                "aria-checked",
+                String(
+                    themeName === "dark"
+                )
             );
 
         }
-    );
-
-
-    function applyTheme(theme) {
-
-        body.setAttribute(
-            'data-theme',
-            theme
-        );
-
-
-        toggle.setAttribute(
-            'aria-checked',
-            String(
-                theme === 'dark'
-            )
-        );
 
     }
 
 }
 
 
-/* =====================================================================
-   MOBILE NAVIGATION
-===================================================================== */
+/* ================================================================
+   2. MOBILE NAV
+   ================================================================ */
 
 function initMobileNav() {
 
     const burger =
         document.getElementById(
-            'navBurger'
+            "navBurger"
         );
-
 
     const nav =
         document.getElementById(
-            'mainNav'
+            "mainNav"
         );
 
 
@@ -146,17 +414,17 @@ function initMobileNav() {
 
 
     burger.addEventListener(
-        'click',
-        () => {
+        "click",
+        function () {
 
             const open =
                 nav.classList.toggle(
-                    'is-open'
+                    "is-open"
                 );
 
 
             burger.setAttribute(
-                'aria-expanded',
+                "aria-expanded",
                 String(open)
             );
 
@@ -164,55 +432,56 @@ function initMobileNav() {
     );
 
 
-    nav
-        .querySelectorAll(
-            '.nav-link'
-        )
-        .forEach(
-            (link) => {
+    nav.querySelectorAll(
+        ".nav-link"
+    ).forEach(
+        function (link) {
 
-                link.addEventListener(
-                    'click',
-                    () => {
+            link.addEventListener(
+                "click",
+                function () {
 
-                        nav.classList.remove(
-                            'is-open'
-                        );
+                    nav.classList.remove(
+                        "is-open"
+                    );
 
 
-                        burger.setAttribute(
-                            'aria-expanded',
-                            'false'
-                        );
+                    burger.setAttribute(
+                        "aria-expanded",
+                        "false"
+                    );
 
-                    }
-                );
+                }
+            );
 
-            }
-        );
+        }
+    );
 
 }
 
 
-/* =====================================================================
-   SCROLLSPY
-===================================================================== */
+/* ================================================================
+   3. SCROLL SPY
+   ================================================================ */
 
 function initScrollSpy() {
 
     const sections =
         document.querySelectorAll(
-            'main section[id]'
+            "main section[id]"
         );
-
 
     const links =
         document.querySelectorAll(
-            '.nav-link'
+            ".nav-link"
         );
 
 
-    if (!sections.length) {
+    if (
+        !sections.length ||
+        !links.length ||
+        !("IntersectionObserver" in window)
+    ) {
         return;
     }
 
@@ -220,10 +489,10 @@ function initScrollSpy() {
     const observer =
         new IntersectionObserver(
 
-            (entries) => {
+            function (entries) {
 
                 entries.forEach(
-                    (entry) => {
+                    function (entry) {
 
                         if (
                             !entry.isIntersecting
@@ -233,18 +502,19 @@ function initScrollSpy() {
 
 
                         const id =
-                            entry.target.id;
+                            entry.target.getAttribute(
+                                "id"
+                            );
 
 
                         links.forEach(
-                            (link) => {
+                            function (link) {
 
                                 link.classList.toggle(
-                                    'is-active',
+                                    "is-active",
                                     link.getAttribute(
-                                        'href'
-                                    ) ===
-                                    `#${id}`
+                                        "href"
+                                    ) === `#${id}`
                                 );
 
                             }
@@ -257,17 +527,17 @@ function initScrollSpy() {
 
             {
                 rootMargin:
-                    '-40% 0px -50% 0px',
+                    "-40% 0px -50% 0px",
 
-                threshold: 0
-
+                threshold:
+                    0
             }
 
         );
 
 
     sections.forEach(
-        (section) => {
+        function (section) {
 
             observer.observe(
                 section
@@ -279,33 +549,20 @@ function initScrollSpy() {
 }
 
 
-/* =====================================================================
-   PROFILE
-===================================================================== */
+/* ================================================================
+   4. PROFILE / ONBOARDING
+   ================================================================ */
 
-const PROFILE_STORAGE_KEY =
-    'lifestyle-profile-v4';
-
-
-let lifestyleProfile =
-    loadProfile();
-
-
-/* ---------------------------------------------------------------------
-   INIT
---------------------------------------------------------------------- */
-
-function initLifestyleProfile() {
+function initProfile() {
 
     const modal =
         document.getElementById(
-            'lifestyleProfileModal'
+            "profileModal"
         );
-
 
     const form =
         document.getElementById(
-            'lifestyleProfileForm'
+            "profileForm"
         );
 
 
@@ -314,9 +571,17 @@ function initLifestyleProfile() {
     }
 
 
-    if (lifestyleProfile) {
+    if (
+        profileState.profile &&
+        profileState.nutrition
+    ) {
 
-        applyProfileToDashboard();
+        fillProfileForm();
+
+        applyProfileToUI();
+
+        modal.hidden =
+            true;
 
     } else {
 
@@ -325,60 +590,235 @@ function initLifestyleProfile() {
     }
 
 
-    [
-        'profileName',
-        'profileAge',
-        'profileGender',
-        'profileHeight',
-        'profileWeight',
-        'profileGoal'
-    ]
-        .forEach(
-            (id) => {
+    const fields = [
 
-                const element =
-                    document.getElementById(
-                        id
-                    );
+        "profileName",
+
+        "profileAge",
+
+        "profileGender",
+
+        "profileHeight",
+
+        "profileWeight",
+
+        "profileGoal"
+
+    ];
 
 
-                if (!element) {
-                    return;
+    fields.forEach(
+        function (id) {
+
+            const element =
+                document.getElementById(
+                    id
+                );
+
+            if (!element) {
+                return;
+            }
+
+
+            element.addEventListener(
+                "input",
+                updateNutritionPreview
+            );
+
+
+            element.addEventListener(
+                "change",
+                updateNutritionPreview
+            );
+
+        }
+    );
+
+
+    form.addEventListener(
+        "submit",
+        function (event) {
+
+            event.preventDefault();
+
+
+            const name =
+                getInputValue(
+                    "profileName"
+                );
+
+            const age =
+                Number(
+                    getInputValue(
+                        "profileAge"
+                    )
+                );
+
+
+            const gender =
+                getInputValue(
+                    "profileGender"
+                );
+
+
+            const height =
+                Number(
+                    getInputValue(
+                        "profileHeight"
+                    )
+                );
+
+
+            const weight =
+                Number(
+                    getInputValue(
+                        "profileWeight"
+                    )
+                );
+
+
+            const goal =
+                getInputValue(
+                    "profileGoal"
+                );
+
+
+            if (
+                !name ||
+                !age ||
+                !height ||
+                !weight
+            ) {
+
+                alert(
+                    "Please complete your profile."
+                );
+
+                return;
+
+            }
+
+
+            const profile = {
+
+                name,
+
+                age,
+
+                gender,
+
+                height,
+
+                weight,
+
+                goal
+
+            };
+
+
+            const nutrition =
+                calculateNutrition(
+                    profile
+                );
+
+
+            profileState.profile =
+                profile;
+
+
+            profileState.nutrition =
+                nutrition;
+
+
+            localStorage.setItem(
+
+                STORAGE.profile,
+
+                JSON.stringify({
+
+                    profile,
+
+                    nutrition,
+
+                    updatedAt:
+                        new Date().toISOString()
+
+                })
+
+            );
+
+
+            applyProfileToUI();
+
+            closeProfileModal();
+
+            showToast(
+                "Your personal nutrition plan has been saved."
+            );
+
+        }
+    );
+
+
+    const closeButton =
+        document.getElementById(
+            "profileModalClose"
+        );
+
+
+    if (closeButton) {
+
+        closeButton.addEventListener(
+            "click",
+            function () {
+
+                if (
+                    profileState.profile
+                ) {
+
+                    closeProfileModal();
+
                 }
-
-
-                element.addEventListener(
-                    'input',
-                    updateProfilePreview
-                );
-
-
-                element.addEventListener(
-                    'change',
-                    updateProfilePreview
-                );
 
             }
         );
 
+    }
 
-    form.addEventListener(
-        'submit',
-        saveProfile
-    );
+
+    const backdrop =
+        document.querySelector(
+            "[data-close-profile]"
+        );
+
+
+    if (backdrop) {
+
+        backdrop.addEventListener(
+            "click",
+            function () {
+
+                if (
+                    profileState.profile
+                ) {
+
+                    closeProfileModal();
+
+                }
+
+            }
+        );
+
+    }
 
 }
 
-
-/* ---------------------------------------------------------------------
-   OPEN
---------------------------------------------------------------------- */
 
 function openProfileModal() {
 
     const modal =
         document.getElementById(
-            'lifestyleProfileModal'
+            "profileModal"
         );
 
 
@@ -391,45 +831,35 @@ function openProfileModal() {
         false;
 
 
-    modal.setAttribute(
-        'aria-hidden',
-        'false'
+    document.body.classList.add(
+        "modal-open"
     );
 
 
-    document.body.style.overflow =
-        'hidden';
+    updateNutritionPreview();
 
 
     setTimeout(
-        () => {
+        function () {
 
-            const name =
-                document.getElementById(
-                    'profileName'
-                );
-
-
-            if (name) {
-                name.focus();
-            }
+            document
+                .getElementById(
+                    "profileName"
+                )
+                ?.focus();
 
         },
-        50
+        100
     );
 
 }
 
 
-/* ---------------------------------------------------------------------
-   CLOSE
---------------------------------------------------------------------- */
-
 function closeProfileModal() {
 
     const modal =
         document.getElementById(
-            'lifestyleProfileModal'
+            "profileModal"
         );
 
 
@@ -442,216 +872,98 @@ function closeProfileModal() {
         true;
 
 
-    modal.setAttribute(
-        'aria-hidden',
-        'true'
-    );
+    if (
+        document.getElementById(
+            "manualFoodModal"
+        )?.hidden !== false
+    ) {
 
+        document.body.classList.remove(
+            "modal-open"
+        );
 
-    document.body.style.overflow =
-        '';
+    }
 
 }
 
 
-/* ---------------------------------------------------------------------
-   SAVE
---------------------------------------------------------------------- */
+function fillProfileForm() {
 
-function saveProfile(event) {
-
-    event.preventDefault();
+    const profile =
+        profileState.profile;
 
 
-    hideProfileError();
-
-
-    const name =
-        document.getElementById(
-            'profileName'
-        ).value.trim();
-
-
-    const age =
-        Number(
-            document.getElementById(
-                'profileAge'
-            ).value
-        );
-
-
-    const gender =
-        document.getElementById(
-            'profileGender'
-        ).value;
-
-
-    const height =
-        Number(
-            document.getElementById(
-                'profileHeight'
-            ).value
-        );
-
-
-    const weight =
-        Number(
-            document.getElementById(
-                'profileWeight'
-            ).value
-        );
-
-
-    const goal =
-        document.getElementById(
-            'profileGoal'
-        ).value;
-
-
-    if (
-        !name ||
-        !age ||
-        !gender ||
-        !height ||
-        !weight ||
-        !goal
-    ) {
-
-        showProfileError(
-            'Please complete every field.'
-        );
-
+    if (!profile) {
         return;
     }
 
 
-    if (
-        age < 13 ||
-        age > 120
-    ) {
-
-        showProfileError(
-            'Please enter an age between 13 and 120.'
-        );
-
-        return;
-    }
-
-
-    if (
-        height < 100 ||
-        height > 250
-    ) {
-
-        showProfileError(
-            'Please enter a height between 100 and 250 cm.'
-        );
-
-        return;
-    }
-
-
-    if (
-        weight < 30 ||
-        weight > 300
-    ) {
-
-        showProfileError(
-            'Please enter a weight between 30 and 300 kg.'
-        );
-
-        return;
-    }
-
-
-    const profile = {
-
-        name,
-
-        age,
-
-        gender,
-
-        height,
-
-        weight,
-
-        goal
-
-    };
-
-
-    const nutrition =
-        calculateNutrition(
-            profile
-        );
-
-
-    lifestyleProfile = {
-
-        profile,
-
-        nutrition,
-
-        updatedAt:
-            new Date().toISOString()
-
-    };
-
-
-    localStorage.setItem(
-
-        PROFILE_STORAGE_KEY,
-
-        JSON.stringify(
-            lifestyleProfile
-        )
-
+    setInputValue(
+        "profileName",
+        profile.name
     );
 
+    setInputValue(
+        "profileAge",
+        profile.age
+    );
 
-    applyProfileToDashboard();
+    setInputValue(
+        "profileGender",
+        profile.gender
+    );
 
+    setInputValue(
+        "profileHeight",
+        profile.height
+    );
 
-    closeProfileModal();
+    setInputValue(
+        "profileWeight",
+        profile.weight
+    );
+
+    setInputValue(
+        "profileGoal",
+        profile.goal
+    );
 
 }
 
-
-/* ---------------------------------------------------------------------
-   BMR
---------------------------------------------------------------------- */
 
 function calculateBMR(profile) {
 
+    const weight =
+        Number(profile.weight);
+
+
+    const height =
+        Number(profile.height);
+
+
+    const age =
+        Number(profile.age);
+
+
+    const base =
+        10 * weight +
+        6.25 * height -
+        5 * age;
+
+
     if (
-        profile.gender ===
-        'male'
+        profile.gender === "male"
     ) {
 
-        return (
-            10 * profile.weight +
-            6.25 * profile.height -
-            5 * profile.age +
-            5
-        );
+        return base + 5;
 
     }
 
 
-    return (
-        10 * profile.weight +
-        6.25 * profile.height -
-        5 * profile.age -
-        161
-    );
+    return base - 161;
 
 }
 
-
-/* ---------------------------------------------------------------------
-   CALORIES + MACROS
---------------------------------------------------------------------- */
 
 function calculateNutrition(profile) {
 
@@ -661,20 +973,13 @@ function calculateNutrition(profile) {
         );
 
 
-    /*
-     * Moderate activity factor.
-     *
-     * Your onboarding doesn't currently
-     * ask for activity level.
-     */
-
-    const activityFactor =
+    const activityMultiplier =
         1.55;
 
 
     const tdee =
         bmr *
-        activityFactor;
+        activityMultiplier;
 
 
     let calories =
@@ -682,146 +987,108 @@ function calculateNutrition(profile) {
 
 
     if (
-        profile.goal ===
-        'weight-loss'
+        profile.goal === "loss"
     ) {
 
-        calories =
-            tdee - 500;
+        calories -= 450;
 
     }
 
 
     if (
-        profile.goal ===
-        'muscle-gain'
+        profile.goal === "gain"
     ) {
 
-        calories =
-            tdee + 300;
+        calories += 300;
 
     }
 
 
     calories =
-        Math.max(
-            1200,
-            Math.round(
+        Math.round(
+            Math.max(
+                1200,
                 calories
             )
         );
 
 
-    /*
-     * Protein target.
-     */
-
     const protein =
-        Math.round(
-            profile.weight *
-            1.8
+        Math.max(
+            1,
+            Math.round(
+                Number(profile.weight) *
+                1.8
+            )
         );
-
-
-    /*
-     * Fats = 25% calories.
-     */
-
-    const fatCalories =
-        calories *
-        0.25;
 
 
     const fats =
-        Math.round(
-            fatCalories / 9
-        );
-
-
-    /*
-     * Carbs = remaining calories.
-     */
-
-    const proteinCalories =
-        protein *
-        4;
-
-
-    const carbCalories =
         Math.max(
-            calories -
-            proteinCalories -
-            fatCalories,
-            0
+            1,
+            Math.round(
+                (calories * 0.25) /
+                9
+            )
         );
 
 
     const carbs =
-        Math.round(
-            carbCalories / 4
+        Math.max(
+            1,
+            Math.round(
+                (
+                    calories -
+                    protein * 4 -
+                    fats * 9
+                ) /
+                4
+            )
         );
 
 
-    /*
-     * Macro percentages.
-     */
-
-    const proteinKcal =
+    const pCalories =
         protein * 4;
 
 
-    const carbsKcal =
+    const cCalories =
         carbs * 4;
 
 
-    const fatsKcal =
+    const fCalories =
         fats * 9;
 
 
     const total =
-        proteinKcal +
-        carbsKcal +
-        fatsKcal;
+        pCalories +
+        cCalories +
+        fCalories;
 
 
-    const proteinPercent =
-        total
-            ? Math.round(
-                (
-                    proteinKcal /
-                    total
-                ) * 100
-            )
-            : 0;
+    const proteinPct =
+        Math.round(
+            (pCalories / total) *
+            100
+        );
 
 
-    const carbsPercent =
-        total
-            ? Math.round(
-                (
-                    carbsKcal /
-                    total
-                ) * 100
-            )
-            : 0;
+    const carbsPct =
+        Math.round(
+            (cCalories / total) *
+            100
+        );
 
 
-    const fatsPercent =
+    const fatsPct =
         Math.max(
+            0,
             100 -
-            proteinPercent -
-            carbsPercent,
-            0
+            proteinPct -
+            carbsPct
         );
 
 
     return {
-
-        bmr:
-            Math.round(bmr),
-
-        tdee:
-            Math.round(tdee),
 
         calories,
 
@@ -831,75 +1098,81 @@ function calculateNutrition(profile) {
 
         fats,
 
-        proteinPercent,
+        percentages: {
 
-        carbsPercent,
+            protein:
+                proteinPct,
 
-        fatsPercent
+            carbs:
+                carbsPct,
+
+            fats:
+                fatsPct
+
+        }
 
     };
 
 }
 
 
-/* ---------------------------------------------------------------------
-   PREVIEW
---------------------------------------------------------------------- */
+function updateNutritionPreview() {
 
-function updateProfilePreview() {
+    const name =
+        getInputValue(
+            "profileName"
+        );
+
 
     const age =
         Number(
-            document.getElementById(
-                'profileAge'
-            ).value
+            getInputValue(
+                "profileAge"
+            )
         );
 
 
     const gender =
-        document.getElementById(
-            'profileGender'
-        ).value;
+        getInputValue(
+            "profileGender"
+        );
 
 
     const height =
         Number(
-            document.getElementById(
-                'profileHeight'
-            ).value
+            getInputValue(
+                "profileHeight"
+            )
         );
 
 
     const weight =
         Number(
-            document.getElementById(
-                'profileWeight'
-            ).value
+            getInputValue(
+                "profileWeight"
+            )
         );
 
 
     const goal =
-        document.getElementById(
-            'profileGoal'
-        ).value;
-
-
-    const preview =
-        document.getElementById(
-            'profilePreview'
+        getInputValue(
+            "profileGoal"
         );
 
 
     if (
+        !name ||
         !age ||
-        !gender ||
         !height ||
         !weight ||
+        !gender ||
         !goal
     ) {
 
-        preview.hidden =
-            true;
+        setText(
+            "profilePreview",
+            "Enter your details to calculate your personalized plan."
+        );
 
         return;
 
@@ -908,6 +1181,8 @@ function updateProfilePreview() {
 
     const nutrition =
         calculateNutrition({
+
+            name,
 
             age,
 
@@ -922,12 +1197,64 @@ function updateProfilePreview() {
         });
 
 
-    preview.hidden =
-        false;
+    const goalLabel = {
+
+        loss:
+            "Weight Loss",
+
+        maintenance:
+            "Maintenance",
+
+        gain:
+            "Muscle Gain"
+
+    }[goal] || "Maintenance";
 
 
     setText(
-        'previewCalories',
+        "profilePreview",
+        `Your ${goalLabel.toLowerCase()} plan: ${formatNumber(nutrition.calories)} kcal/day · Protein ${nutrition.protein}g · Carbs ${nutrition.carbs}g · Fats ${nutrition.fats}g`
+    );
+
+}
+
+
+function applyProfileToUI() {
+
+    if (
+        !profileState.profile ||
+        !profileState.nutrition
+    ) {
+        return;
+    }
+
+
+    const profile =
+        profileState.profile;
+
+
+    const nutrition =
+        profileState.nutrition;
+
+
+    dashboardState.calorieGoal =
+        nutrition.calories;
+
+
+    setText(
+        "lifestyleJapaneseGreeting",
+        `Konnichiwa, ${profile.name}-san 🌱`
+    );
+
+
+    setText(
+        "lifestyleUserGreeting",
+        `${profile.name}-san, let's make today a healthy day!`
+    );
+
+
+    setText(
+        "heroCalorieGoal",
         formatNumber(
             nutrition.calories
         )
@@ -935,49 +1262,7 @@ function updateProfilePreview() {
 
 
     setText(
-        'previewProtein',
-        `${nutrition.protein}g`
-    );
-
-
-    setText(
-        'previewCarbs',
-        `${nutrition.carbs}g`
-    );
-
-
-    setText(
-        'previewFats',
-        `${nutrition.fats}g`
-    );
-
-}
-
-
-/* ---------------------------------------------------------------------
-   APPLY PROFILE
---------------------------------------------------------------------- */
-
-function applyProfileToDashboard() {
-
-    if (!lifestyleProfile) {
-        return;
-    }
-
-
-    const nutrition =
-        lifestyleProfile.nutrition;
-
-
-    dashboardState.calorieGoal =
-        nutrition.calories;
-
-
-    updateDashboardTotals();
-
-
-    setText(
-        'calorieGoalLabel',
+        "dashboardCalorieGoal",
         `Goal: ${formatNumber(
             nutrition.calories
         )} kcal`
@@ -985,224 +1270,37 @@ function applyProfileToDashboard() {
 
 
     setText(
-        'heroCalorieGoal',
-        formatNumber(
-            nutrition.calories
-        )
-    );
-
-
-    setText(
-        'heroProteinPct',
-        `${nutrition.proteinPercent}%`
-    );
-
-
-    setText(
-        'heroCarbsPct',
-        `${nutrition.carbsPercent}%`
-    );
-
-
-    setText(
-        'heroFatsPct',
-        `${nutrition.fatsPercent}%`
-    );
-
-
-    setText(
-        'lifestyleMacroTargetDisplay',
+        "macroTargetDisplay",
         `Target: P ${nutrition.protein}g · C ${nutrition.carbs}g · F ${nutrition.fats}g`
     );
 
-}
 
-
-/* ---------------------------------------------------------------------
-   PROFILE STORAGE
---------------------------------------------------------------------- */
-
-function loadProfile() {
-
-    try {
-
-        const stored =
-            localStorage.getItem(
-                PROFILE_STORAGE_KEY
-            );
-
-
-        if (!stored) {
-            return null;
-        }
-
-
-        return JSON.parse(
-            stored
-        );
-
-    } catch (error) {
-
-        console.error(
-            'Unable to load profile:',
-            error
-        );
-
-
-        return null;
-
-    }
-
-}
-
-
-/* ---------------------------------------------------------------------
-   RESET
---------------------------------------------------------------------- */
-
-function resetLifestyleProfile() {
-
-    localStorage.removeItem(
-        PROFILE_STORAGE_KEY
+    setText(
+        "heroProteinPct",
+        `${nutrition.percentages.protein}%`
     );
 
 
-    lifestyleProfile =
-        null;
+    setText(
+        "heroCarbsPct",
+        `${nutrition.percentages.carbs}%`
+    );
 
 
-    dashboardState.calorieGoal =
-        2000;
+    setText(
+        "heroFatsPct",
+        `${nutrition.percentages.fats}%`
+    );
 
 
-    const form =
-        document.getElementById(
-            'lifestyleProfileForm'
-        );
-
-
-    if (form) {
-        form.reset();
-    }
-
-
-    const preview =
-        document.getElementById(
-            'profilePreview'
-        );
-
-
-    if (preview) {
-        preview.hidden =
-            true;
-    }
-
-
-    openProfileModal();
+    updateDashboard();
 
 }
 
 
-window.resetLifestyleProfile =
-    resetLifestyleProfile;
-
-
-/* ---------------------------------------------------------------------
-   PROFILE ERROR
---------------------------------------------------------------------- */
-
-function showProfileError(message) {
-
-    const element =
-        document.getElementById(
-            'profileFormError'
-        );
-
-
-    if (!element) {
-        return;
-    }
-
-
-    element.textContent =
-        message;
-
-
-    element.hidden =
-        false;
-
-}
-
-
-function hideProfileError() {
-
-    const element =
-        document.getElementById(
-            'profileFormError'
-        );
-
-
-    if (!element) {
-        return;
-    }
-
-
-    element.textContent =
-        '';
-
-
-    element.hidden =
-        true;
-
-}
-
-
-/* =====================================================================
-   DASHBOARD
-===================================================================== */
-
-const dashboardState = {
-
-    calorieGoal:
-        2000,
-
-    baseCalories:
-        0,
-
-    baseMacros: {
-
-        protein:
-            0,
-
-        carbs:
-            0,
-
-        fats:
-            0
-
-    },
-
-    activeMeal:
-        'breakfast',
-
-    meals: {
-
-        breakfast: [],
-
-        lunch: [],
-
-        dinner: [],
-
-        snacks: []
-
-    }
-
-};
-
-
-/* ---------------------------------------------------------------------
-   INIT DASHBOARD
---------------------------------------------------------------------- */
+/* ================================================================
+   5. DASHBOARD
+   ================================================================ */
 
 function initDashboard() {
 
@@ -1212,46 +1310,42 @@ function initDashboard() {
 
     renderMealLog();
 
-    updateDashboardTotals();
+    updateDashboard();
 
 }
 
-
-/* ---------------------------------------------------------------------
-   MEAL TABS
---------------------------------------------------------------------- */
 
 function initMealTabs() {
 
     const tabs =
         document.querySelectorAll(
-            '.meal-tab'
+            ".meal-tab"
         );
 
 
     const label =
         document.getElementById(
-            'activeMealLabel'
+            "activeMealLabel"
         );
 
 
     tabs.forEach(
-        (tab) => {
+        function (tab) {
 
             tab.addEventListener(
-                'click',
-                () => {
+                "click",
+                function () {
 
                     tabs.forEach(
-                        (item) => {
+                        function (item) {
 
                             item.classList.remove(
-                                'is-active'
+                                "is-active"
                             );
 
                             item.setAttribute(
-                                'aria-selected',
-                                'false'
+                                "aria-selected",
+                                "false"
                             );
 
                         }
@@ -1259,18 +1353,19 @@ function initMealTabs() {
 
 
                     tab.classList.add(
-                        'is-active'
+                        "is-active"
                     );
 
 
                     tab.setAttribute(
-                        'aria-selected',
-                        'true'
+                        "aria-selected",
+                        "true"
                     );
 
 
                     dashboardState.activeMeal =
-                        tab.dataset.meal;
+                        tab.dataset.meal ||
+                        "breakfast";
 
 
                     if (label) {
@@ -1294,15 +1389,11 @@ function initMealTabs() {
 }
 
 
-/* ---------------------------------------------------------------------
-   QUICK ADD
---------------------------------------------------------------------- */
-
 function initQuickAddForm() {
 
     const form =
         document.getElementById(
-            'quickAddForm'
+            "quickAddForm"
         );
 
 
@@ -1312,47 +1403,47 @@ function initQuickAddForm() {
 
 
     form.addEventListener(
-        'submit',
-        (event) => {
+        "submit",
+        function (event) {
 
             event.preventDefault();
 
 
             const name =
-                document.getElementById(
-                    'mealName'
-                ).value.trim();
+                getInputValue(
+                    "mealName"
+                );
 
 
             const calories =
                 Number(
-                    document.getElementById(
-                        'mealCalories'
-                    ).value
+                    getInputValue(
+                        "mealCalories"
+                    )
                 ) || 0;
 
 
             const protein =
                 Number(
-                    document.getElementById(
-                        'mealProtein'
-                    ).value
+                    getInputValue(
+                        "mealProtein"
+                    )
                 ) || 0;
 
 
             const carbs =
                 Number(
-                    document.getElementById(
-                        'mealCarbs'
-                    ).value
+                    getInputValue(
+                        "mealCarbs"
+                    )
                 ) || 0;
 
 
             const fats =
                 Number(
-                    document.getElementById(
-                        'mealFats'
-                    ).value
+                    getInputValue(
+                        "mealFats"
+                    )
                 ) || 0;
 
 
@@ -1361,40 +1452,52 @@ function initQuickAddForm() {
                 calories <= 0
             ) {
 
+                alert(
+                    "Please enter a meal name and calories."
+                );
+
                 return;
 
             }
 
 
-            dashboardState
-                .meals[
-                    dashboardState.activeMeal
-                ]
-                .push({
+            addMeal({
 
-                    id:
-                        Date.now(),
+                id:
+                    Date.now(),
 
-                    name,
+                name,
 
-                    calories,
+                calories,
 
-                    protein,
+                protein,
 
-                    carbs,
+                carbs,
 
-                    fats
+                fats,
 
-                });
+                fiber:
+                    0,
+
+                sodium:
+                    0,
+
+                potassium:
+                    0,
+
+                calcium:
+                    0,
+
+                iron:
+                    0,
+
+                vitaminC:
+                    0
+
+            });
 
 
             form.reset();
-
-
-            renderMealLog();
-
-
-            updateDashboardTotals();
 
         }
     );
@@ -1402,15 +1505,94 @@ function initQuickAddForm() {
 }
 
 
-/* ---------------------------------------------------------------------
-   MEAL LOG
---------------------------------------------------------------------- */
+function addMeal(item) {
+
+    const meal =
+        dashboardState.activeMeal;
+
+
+    if (
+        !dashboardState.meals[
+            meal
+        ]
+    ) {
+
+        dashboardState.meals[
+            meal
+        ] = [];
+
+    }
+
+
+    dashboardState.meals[
+        meal
+    ].push({
+
+        id:
+            item.id ||
+            Date.now(),
+
+        name:
+            item.name ||
+            "Meal",
+
+        calories:
+            Number(item.calories) ||
+            0,
+
+        protein:
+            Number(item.protein) ||
+            0,
+
+        carbs:
+            Number(item.carbs) ||
+            0,
+
+        fats:
+            Number(item.fats) ||
+            0,
+
+        fiber:
+            Number(item.fiber) ||
+            0,
+
+        sodium:
+            Number(item.sodium) ||
+            0,
+
+        potassium:
+            Number(item.potassium) ||
+            0,
+
+        calcium:
+            Number(item.calcium) ||
+            0,
+
+        iron:
+            Number(item.iron) ||
+            0,
+
+        vitaminC:
+            Number(item.vitaminC) ||
+            0
+
+    });
+
+
+    saveMeals();
+
+    renderMealLog();
+
+    updateDashboard();
+
+}
+
 
 function renderMealLog() {
 
     const log =
         document.getElementById(
-            'mealLog'
+            "mealLog"
         );
 
 
@@ -1419,36 +1601,35 @@ function renderMealLog() {
     }
 
 
-    const items =
+    const meals =
         dashboardState.meals[
             dashboardState.activeMeal
-        ];
+        ] || [];
 
 
-    const label =
-        capitalize(
-            dashboardState.activeMeal
-        );
+    log.innerHTML = "";
 
 
-    log.innerHTML =
-        '';
-
-
-    if (!items.length) {
+    if (!meals.length) {
 
         const empty =
             document.createElement(
-                'li'
+                "li"
             );
 
 
         empty.className =
-            'meal-log-empty';
+            "meal-log-empty";
+
+
+        empty.id =
+            "mealLogEmpty";
 
 
         empty.textContent =
-            `No meals logged for ${label} yet — add your first one above.`;
+            `No meals logged for ${capitalize(
+                dashboardState.activeMeal
+            )} yet — add your first one above.`;
 
 
         log.appendChild(
@@ -1461,17 +1642,17 @@ function renderMealLog() {
     }
 
 
-    items.forEach(
-        (item) => {
+    meals.forEach(
+        function (item) {
 
             const li =
                 document.createElement(
-                    'li'
+                    "li"
                 );
 
 
             li.className =
-                'meal-log-item';
+                "meal-log-item";
 
 
             li.innerHTML = `
@@ -1479,44 +1660,50 @@ function renderMealLog() {
                 <span>
 
                     <span class="meal-log-item-name">
-                        ${escapeHTML(item.name)}
+                        ${escapeHTML(
+                            item.name
+                        )}
                     </span>
 
                     <span class="meal-log-item-macros">
-
-                        · ${item.calories} kcal
-
-                        · P ${item.protein}g
-
-                        · C ${item.carbs}g
-
-                        · F ${item.fats}g
-
+                        · ${formatNumber(
+                            item.calories
+                        )} kcal
+                        · P ${formatDecimal(
+                            item.protein
+                        )}g
+                        · C ${formatDecimal(
+                            item.carbs
+                        )}g
+                        · F ${formatDecimal(
+                            item.fats
+                        )}g
                     </span>
 
                 </span>
 
-
                 <button
                     type="button"
                     class="meal-log-item-remove"
-                    aria-label="Remove food"
+                    aria-label="Remove meal"
                 >
-
                     <i class="fa-solid fa-xmark"></i>
-
                 </button>
 
             `;
 
 
-            li
-                .querySelector(
-                    '.meal-log-item-remove'
-                )
-                .addEventListener(
-                    'click',
-                    () => {
+            const remove =
+                li.querySelector(
+                    ".meal-log-item-remove"
+                );
+
+
+            if (remove) {
+
+                remove.addEventListener(
+                    "click",
+                    function () {
 
                         dashboardState.meals[
                             dashboardState.activeMeal
@@ -1524,18 +1711,27 @@ function renderMealLog() {
                             dashboardState.meals[
                                 dashboardState.activeMeal
                             ].filter(
-                                (meal) =>
-                                    meal.id !==
-                                    item.id
+                                function (meal) {
+
+                                    return (
+                                        meal.id !==
+                                        item.id
+                                    );
+
+                                }
                             );
 
 
+                        saveMeals();
+
                         renderMealLog();
 
-                        updateDashboardTotals();
+                        updateDashboard();
 
                     }
                 );
+
+            }
 
 
             log.appendChild(
@@ -1548,13 +1744,9 @@ function renderMealLog() {
 }
 
 
-/* ---------------------------------------------------------------------
-   DASHBOARD TOTALS
---------------------------------------------------------------------- */
+function getMealTotals() {
 
-function getLoggedTotals() {
-
-    const totals = {
+    const total = {
 
         calories:
             0,
@@ -1566,6 +1758,24 @@ function getLoggedTotals() {
             0,
 
         fats:
+            0,
+
+        fiber:
+            0,
+
+        sodium:
+            0,
+
+        potassium:
+            0,
+
+        calcium:
+            0,
+
+        iron:
+            0,
+
+        vitaminC:
             0
 
     };
@@ -1573,277 +1783,439 @@ function getLoggedTotals() {
 
     Object.values(
         dashboardState.meals
-    )
-        .forEach(
-            (mealArray) => {
+    ).forEach(
+        function (mealArray) {
 
-                mealArray.forEach(
-                    (item) => {
+            mealArray.forEach(
+                function (item) {
 
-                        totals.calories +=
-                            item.calories;
+                    total.calories +=
+                        Number(
+                            item.calories
+                        ) || 0;
+
+                    total.protein +=
+                        Number(
+                            item.protein
+                        ) || 0;
+
+                    total.carbs +=
+                        Number(
+                            item.carbs
+                        ) || 0;
+
+                    total.fats +=
+                        Number(
+                            item.fats
+                        ) || 0;
+
+                    total.fiber +=
+                        Number(
+                            item.fiber
+                        ) || 0;
+
+                    total.sodium +=
+                        Number(
+                            item.sodium
+                        ) || 0;
+
+                    total.potassium +=
+                        Number(
+                            item.potassium
+                        ) || 0;
+
+                    total.calcium +=
+                        Number(
+                            item.calcium
+                        ) || 0;
+
+                    total.iron +=
+                        Number(
+                            item.iron
+                        ) || 0;
+
+                    total.vitaminC +=
+                        Number(
+                            item.vitaminC
+                        ) || 0;
+
+                }
+            );
+
+        }
+    );
 
 
-                        totals.protein +=
-                            item.protein;
-
-
-                        totals.carbs +=
-                            item.carbs;
-
-
-                        totals.fats +=
-                            item.fats;
-
-                    }
-                );
-
-            }
-        );
-
-
-    return totals;
+    return total;
 
 }
 
 
-function updateDashboardTotals() {
+function updateDashboard() {
 
-    const logged =
-        getLoggedTotals();
+    const totals =
+        getMealTotals();
 
 
     const consumed =
-        dashboardState.baseCalories +
-        logged.calories;
+        totals.calories;
+
+
+    const goal =
+        dashboardState.calorieGoal ||
+        2000;
 
 
     const remaining =
         Math.max(
-            dashboardState.calorieGoal -
+            goal -
             consumed,
             0
         );
 
 
-    const ring =
-        dashboardState.calorieGoal > 0
-            ? Math.min(
-                consumed /
-                dashboardState.calorieGoal,
+    const percentage =
+        Math.min(
+            consumed /
+            Math.max(
+                goal,
                 1
+            ),
+            1
+        );
+
+
+    setText(
+        "caloriesConsumed",
+        formatNumber(
+            consumed
+        )
+    );
+
+
+    setText(
+        "caloriesRemaining",
+        formatNumber(
+            remaining
+        )
+    );
+
+
+    setText(
+        "legendConsumed",
+        formatNumber(
+            consumed
+        )
+    );
+
+
+    setText(
+        "legendRemaining",
+        formatNumber(
+            remaining
+        )
+    );
+
+
+    const ring =
+        document.getElementById(
+            "calorieRingProgress"
+        );
+
+
+    if (ring) {
+
+        ring.style.setProperty(
+            "--ring-value",
+            percentage.toFixed(
+                3
             )
-            : 0;
+        );
+
+    }
 
 
-    setText(
-        'caloriesConsumed',
-        formatNumber(consumed)
-    );
-
-
-    setText(
-        'caloriesRemaining',
-        formatNumber(remaining)
-    );
-
-
-    setText(
-        'legendConsumed',
-        formatNumber(consumed)
-    );
-
-
-    setText(
-        'legendRemaining',
-        formatNumber(remaining)
-    );
-
-
-    setStyle(
-        'calorieRingProgress',
-        '--ring-value',
-        ring.toFixed(3)
-    );
-
-
-    setText(
-        'heroCaloriesConsumed',
-        formatNumber(consumed)
-    );
-
-
-    setStyle(
-        'heroCalorieRingProgress',
-        '--ring-value',
-        ring.toFixed(3)
-    );
-
-
-    const protein =
-        dashboardState.baseMacros.protein +
-        logged.protein;
-
-
-    const carbs =
-        dashboardState.baseMacros.carbs +
-        logged.carbs;
-
-
-    const fats =
-        dashboardState.baseMacros.fats +
-        logged.fats;
-
-
-    const targets =
-        lifestyleProfile
-            ? lifestyleProfile.nutrition
-            : null;
+    const nutrition =
+        profileState.nutrition;
 
 
     const proteinTarget =
-        targets
-            ? targets.protein
-            : 1;
+        nutrition?.protein ||
+        100;
 
 
     const carbsTarget =
-        targets
-            ? targets.carbs
-            : 1;
+        nutrition?.carbs ||
+        200;
 
 
     const fatsTarget =
-        targets
-            ? targets.fats
-            : 1;
+        nutrition?.fats ||
+        60;
 
 
-    const proteinPercent =
-        Math.min(
-            Math.round(
-                (
-                    protein /
-                    proteinTarget
-                ) * 100
-            ),
-            100
-        );
-
-
-    const carbsPercent =
-        Math.min(
-            Math.round(
-                (
-                    carbs /
-                    carbsTarget
-                ) * 100
-            ),
-            100
-        );
-
-
-    const fatsPercent =
-        Math.min(
-            Math.round(
-                (
-                    fats /
-                    fatsTarget
-                ) * 100
-            ),
-            100
-        );
-
-
-    setText(
-        'proteinGrams',
-        protein
+    updateMacro(
+        "protein",
+        totals.protein,
+        proteinTarget
     );
 
 
-    setText(
-        'carbsGrams',
-        carbs
+    updateMacro(
+        "carbs",
+        totals.carbs,
+        carbsTarget
     );
 
 
-    setText(
-        'fatsGrams',
-        fats
+    updateMacro(
+        "fats",
+        totals.fats,
+        fatsTarget
     );
 
 
-    setText(
-        'proteinPct',
-        `${proteinPercent}%`
-    );
-
-
-    setText(
-        'carbsPct',
-        `${carbsPercent}%`
-    );
-
-
-    setText(
-        'fatsPct',
-        `${fatsPercent}%`
-    );
-
-
-    setStyleWidth(
-        'proteinBar',
-        proteinPercent
-    );
-
-
-    setStyleWidth(
-        'carbsBar',
-        carbsPercent
-    );
-
-
-    setStyleWidth(
-        'fatsBar',
-        fatsPercent
+    updateHeroValues(
+        totals,
+        goal
     );
 
 }
 
 
-/* =====================================================================
-   WATER
-===================================================================== */
+function updateMacro(
+    name,
+    value,
+    target
+) {
 
-const waterState = {
+    const calories = {
 
-    goalGlasses:
-        8,
+        protein:
+            value * 4,
 
-    goalLitres:
-        2.5,
+        carbs:
+            value * 4,
 
-    count:
-        0
+        fats:
+            value * 9
 
-};
+    }[name];
 
 
-function initWaterTracker() {
+    setText(
+        `${name}Grams`,
+        formatDecimal(
+            value
+        )
+    );
 
-    const wrapper =
-        document.getElementById(
-            'waterGlasses'
+
+    const total =
+        Math.max(
+            (
+                (getMealTotals().protein * 4) +
+                (getMealTotals().carbs * 4) +
+                (getMealTotals().fats * 9)
+            ),
+            1
         );
 
 
-    if (!wrapper) {
+    const proteinCal =
+        getMealTotals().protein * 4;
+
+
+    const carbsCal =
+        getMealTotals().carbs * 4;
+
+
+    const fatsCal =
+        getMealTotals().fats * 9;
+
+
+    let percentage =
+        0;
+
+
+    if (name === "protein") {
+
+        percentage =
+            Math.round(
+                (
+                    proteinCal /
+                    total
+                ) *
+                100
+            );
+
+    }
+
+
+    if (name === "carbs") {
+
+        percentage =
+            Math.round(
+                (
+                    carbsCal /
+                    total
+                ) *
+                100
+            );
+
+    }
+
+
+    if (name === "fats") {
+
+        percentage =
+            Math.max(
+                0,
+                100 -
+                Math.round(
+                    (
+                        proteinCal /
+                        total
+                    ) *
+                    100
+                ) -
+                Math.round(
+                    (
+                        carbsCal /
+                        total
+                    ) *
+                    100
+                )
+            );
+
+    }
+
+
+    setText(
+        `${name}Pct`,
+        `${percentage}%`
+    );
+
+
+    setStyleWidth(
+        `${name}Bar`,
+        percentage
+    );
+
+}
+
+
+function updateHeroValues(
+    totals,
+    goal
+) {
+
+    const nutrition =
+        profileState.nutrition;
+
+
+    if (!nutrition) {
         return;
     }
 
 
-    wrapper.innerHTML =
-        '';
+    const proteinCalories =
+        totals.protein * 4;
+
+
+    const carbCalories =
+        totals.carbs * 4;
+
+
+    const fatCalories =
+        totals.fats * 9;
+
+
+    const total =
+        Math.max(
+            proteinCalories +
+            carbCalories +
+            fatCalories,
+            1
+        );
+
+
+    setText(
+        "heroCaloriesConsumed",
+        formatNumber(
+            totals.calories
+        )
+    );
+
+
+    setText(
+        "heroCalorieGoal",
+        formatNumber(
+            goal
+        )
+    );
+
+
+    setText(
+        "heroProteinPct",
+        `${Math.round(
+            proteinCalories /
+            total *
+            100
+        )}%`
+    );
+
+
+    setText(
+        "heroCarbsPct",
+        `${Math.round(
+            carbCalories /
+            total *
+            100
+        )}%`
+    );
+
+
+    setText(
+        "heroFatsPct",
+        `${Math.max(
+            0,
+            100 -
+            Math.round(
+                proteinCalories /
+                total *
+                100
+            ) -
+            Math.round(
+                carbCalories /
+                total *
+                100
+            )
+        )}%`
+    );
+
+}
+
+
+/* ================================================================
+   6. WATER
+   ================================================================ */
+
+function initWaterTracker() {
+
+    const container =
+        document.getElementById(
+            "waterGlasses"
+        );
+
+
+    if (!container) {
+        return;
+    }
+
+
+    container.innerHTML =
+        "";
 
 
     for (
@@ -1854,43 +2226,61 @@ function initWaterTracker() {
 
         const button =
             document.createElement(
-                'button'
+                "button"
             );
 
 
         button.type =
-            'button';
+            "button";
 
 
         button.className =
-            'water-glass';
+            "water-glass";
+
+
+        button.setAttribute(
+            "aria-label",
+            `Glass ${i + 1} of ${waterState.goalGlasses}`
+        );
 
 
         button.innerHTML =
-            `<i class="fa-solid fa-glass-water"></i>`;
+            '<i class="fa-solid fa-glass-water"></i>';
 
 
         button.addEventListener(
-            'click',
-            () => {
+            "click",
+            function () {
 
                 const target =
                     i + 1;
 
 
-                waterState.count =
-                    waterState.count === target
-                        ? target - 1
-                        : target;
+                if (
+                    waterState.count ===
+                    target
+                ) {
+
+                    waterState.count =
+                        target - 1;
+
+                } else {
+
+                    waterState.count =
+                        target;
+
+                }
 
 
-                renderWaterTracker();
+                saveWater();
+
+                updateWater();
 
             }
         );
 
 
-        wrapper.appendChild(
+        container.appendChild(
             button
         );
 
@@ -1899,20 +2289,22 @@ function initWaterTracker() {
 
     const reset =
         document.getElementById(
-            'waterResetBtn'
+            "waterResetBtn"
         );
 
 
     if (reset) {
 
         reset.addEventListener(
-            'click',
-            () => {
+            "click",
+            function () {
 
                 waterState.count =
                     0;
 
-                renderWaterTracker();
+                saveWater();
+
+                updateWater();
 
             }
         );
@@ -1920,24 +2312,24 @@ function initWaterTracker() {
     }
 
 
-    renderWaterTracker();
+    updateWater();
 
 }
 
 
-function renderWaterTracker() {
+function updateWater() {
 
     const glasses =
         document.querySelectorAll(
-            '.water-glass'
+            ".water-glass"
         );
 
 
     glasses.forEach(
-        (glass, index) => {
+        function (glass, index) {
 
             glass.classList.toggle(
-                'is-filled',
+                "is-filled",
                 index <
                 waterState.count
             );
@@ -1950,21 +2342,15 @@ function renderWaterTracker() {
         (
             waterState.count /
             waterState.goalGlasses
-        ) * 100;
+        ) *
+        100;
 
 
-    const fill =
-        document.getElementById(
-            'waterFill'
-        );
-
-
-    if (fill) {
-
-        fill.style.height =
-            `${percent}%`;
-
-    }
+    setStyle(
+        "waterFill",
+        "height",
+        `${percent}%`
+    );
 
 
     const litres =
@@ -1976,63 +2362,96 @@ function renderWaterTracker() {
 
 
     setText(
-        'waterAmountLitres',
+        "waterAmountLitres",
         `${litres.toFixed(1)}L`
     );
 
 
     setText(
-        'waterAmountGlasses',
+        "waterAmountGlasses",
         `${waterState.count} of ${waterState.goalGlasses} glasses`
+    );
+
+
+    setText(
+        "waterGoalGlasses",
+        `${waterState.goalGlasses}`
+    );
+
+
+    setText(
+        "waterGoalLitres",
+        `${waterState.goalLitres}L`
     );
 
 }
 
 
-/* =====================================================================
-   VEGETARIAN RECIPES
-===================================================================== */
+/* ================================================================
+   7. RECIPE DATABASE
+   ================================================================ */
 
-const RECIPES = [
+const BASE_RECIPES = [
 
     {
         name:
-            'Paneer Tikka Power Bowl',
+            "Paneer Tikka Bowl",
 
         icon:
-            'fa-bowl-food',
+            "fa-bowl-food",
 
         time:
             25,
 
         calories:
-            430,
+            420,
+
+        protein:
+            25,
+
+        carbs:
+            34,
+
+        fats:
+            20,
+
+        fiber:
+            7,
+
+        sodium:
+            620,
+
+        potassium:
+            690,
+
+        calcium:
+            310,
+
+        iron:
+            3.8,
+
+        vitaminC:
+            48,
 
         tags:
             [
-                'vegetarian',
-                'high-protein',
-                'low-carb'
+                "high-protein",
+                "vegetarian",
+                "quick-prep"
             ],
 
-        ingredients:
-            [
-                'paneer',
-                'bell pepper',
-                'onion',
-                'yogurt',
-                'spices'
-            ]
+        image:
+            "paneer tikka bowl"
 
     },
 
 
     {
         name:
-            'Avocado Chickpea Salad',
+            "Chickpea Avocado Salad",
 
         icon:
-            'fa-seedling',
+            "fa-seedling",
 
         time:
             10,
@@ -2040,31 +2459,52 @@ const RECIPES = [
         calories:
             360,
 
+        protein:
+            13,
+
+        carbs:
+            39,
+
+        fats:
+            18,
+
+        fiber:
+            11,
+
+        sodium:
+            390,
+
+        potassium:
+            720,
+
+        calcium:
+            92,
+
+        iron:
+            4.2,
+
+        vitaminC:
+            28,
+
         tags:
             [
-                'vegetarian',
-                'vegan',
-                'quick-prep'
+                "vegan",
+                "vegetarian",
+                "quick-prep"
             ],
 
-        ingredients:
-            [
-                'avocado',
-                'chickpeas',
-                'tomato',
-                'cucumber',
-                'lemon'
-            ]
+        image:
+            "chickpea avocado salad"
 
     },
 
 
     {
         name:
-            'Tofu Veggie Stir-Fry',
+            "Tofu Vegetable Stir Fry",
 
         icon:
-            'fa-pepper-hot',
+            "fa-pepper-hot",
 
         time:
             18,
@@ -2072,63 +2512,53 @@ const RECIPES = [
         calories:
             390,
 
+        protein:
+            25,
+
+        carbs:
+            30,
+
+        fats:
+            18,
+
+        fiber:
+            8,
+
+        sodium:
+            680,
+
+        potassium:
+            760,
+
+        calcium:
+            260,
+
+        iron:
+            5.1,
+
+        vitaminC:
+            76,
+
         tags:
             [
-                'vegetarian',
-                'vegan',
-                'high-protein',
-                'quick-prep'
+                "vegan",
+                "high-protein",
+                "quick-prep",
+                "vegetarian"
             ],
 
-        ingredients:
-            [
-                'tofu',
-                'broccoli',
-                'capsicum',
-                'soy',
-                'carrot'
-            ]
+        image:
+            "tofu vegetable stir fry"
 
     },
 
 
     {
         name:
-            'Zucchini Noodle Alfredo',
+            "Quinoa Power Bowl",
 
         icon:
-            'fa-bowl-food',
-
-        time:
-            22,
-
-        calories:
-            340,
-
-        tags:
-            [
-                'vegetarian',
-                'low-carb',
-                'keto'
-            ],
-
-        ingredients:
-            [
-                'zucchini',
-                'cheese',
-                'cream',
-                'garlic'
-            ]
-
-    },
-
-
-    {
-        name:
-            'Quinoa Power Bowl',
-
-        icon:
-            'fa-wheat-awn',
+            "fa-wheat-awn",
 
         time:
             15,
@@ -2136,221 +2566,159 @@ const RECIPES = [
         calories:
             410,
 
-        tags:
-            [
-                'vegetarian',
-                'vegan',
-                'high-protein'
-            ],
+        protein:
+            16,
 
-        ingredients:
-            [
-                'quinoa',
-                'beans',
-                'spinach',
-                'corn',
-                'avocado'
-            ]
+        carbs:
+            54,
 
-    },
-
-
-    {
-        name:
-            'Palak Paneer Bowl',
-
-        icon:
-            'fa-leaf',
-
-        time:
-            25,
-
-        calories:
-            380,
-
-        tags:
-            [
-                'vegetarian',
-                'high-protein'
-            ],
-
-        ingredients:
-            [
-                'paneer',
-                'spinach',
-                'tomato',
-                'onion',
-                'garlic'
-            ]
-
-    },
-
-
-    {
-        name:
-            'Vegetable Poha',
-
-        icon:
-            'fa-seedling',
-
-        time:
-            12,
-
-        calories:
-            280,
-
-        tags:
-            [
-                'vegetarian',
-                'vegan',
-                'quick-prep'
-            ],
-
-        ingredients:
-            [
-                'poha',
-                'peanuts',
-                'onion',
-                'peas',
-                'lemon'
-            ]
-
-    },
-
-
-    {
-        name:
-            'Masala Oats',
-
-        icon:
-            'fa-bowl-food',
-
-        time:
-            10,
-
-        calories:
-            290,
-
-        tags:
-            [
-                'vegetarian',
-                'vegan',
-                'quick-prep'
-            ],
-
-        ingredients:
-            [
-                'oats',
-                'carrot',
-                'peas',
-                'spices',
-                'onion'
-            ]
-
-    },
-
-
-    {
-        name:
-            'Idli & Sambar',
-
-        icon:
-            'fa-bowl-rice',
-
-        time:
+        fats:
             15,
 
-        calories:
-            320,
+        fiber:
+            9,
+
+        sodium:
+            310,
+
+        potassium:
+            650,
+
+        calcium:
+            82,
+
+        iron:
+            4.6,
+
+        vitaminC:
+            31,
 
         tags:
             [
-                'vegetarian',
-                'vegan'
+                "vegan",
+                "high-protein",
+                "vegetarian"
             ],
 
-        ingredients:
-            [
-                'idli',
-                'rice',
-                'urad dal',
-                'lentils',
-                'vegetables'
-            ]
+        image:
+            "quinoa power bowl"
 
     },
 
 
     {
         name:
-            'Moong Dal Chilla',
+            "Lentil Spinach Curry",
 
         icon:
-            'fa-circle-dot',
-
-        time:
-            20,
-
-        calories:
-            300,
-
-        tags:
-            [
-                'vegetarian',
-                'vegan',
-                'high-protein'
-            ],
-
-        ingredients:
-            [
-                'moong dal',
-                'onion',
-                'tomato',
-                'green chilli',
-                'coriander'
-            ]
-
-    },
-
-
-    {
-        name:
-            'Rajma Rice Bowl',
-
-        icon:
-            'fa-bowl-food',
+            "fa-mortar-pestle",
 
         time:
             30,
 
         calories:
-            450,
+            380,
+
+        protein:
+            21,
+
+        carbs:
+            49,
+
+        fats:
+            10,
+
+        fiber:
+            15,
+
+        sodium:
+            540,
+
+        potassium:
+            840,
+
+        calcium:
+            135,
+
+        iron:
+            6.5,
+
+        vitaminC:
+            39,
 
         tags:
             [
-                'vegetarian',
-                'vegan',
-                'high-protein'
+                "vegan",
+                "high-protein",
+                "vegetarian"
             ],
 
-        ingredients:
-            [
-                'rajma',
-                'rice',
-                'tomato',
-                'onion',
-                'spices'
-            ]
+        image:
+            "lentil spinach curry"
 
     },
 
 
     {
         name:
-            'Greek Yogurt Berry Parfait',
+            "Cauliflower Fried Rice",
 
         icon:
-            'fa-ice-cream',
+            "fa-carrot",
+
+        time:
+            20,
+
+        calories:
+            310,
+
+        protein:
+            13,
+
+        carbs:
+            19,
+
+        fats:
+            20,
+
+        fiber:
+            8,
+
+        sodium:
+            590,
+
+        potassium:
+            630,
+
+        calcium:
+            92,
+
+        iron:
+            2.7,
+
+        vitaminC:
+            68,
+
+        tags:
+            [
+                "vegan",
+                "low-carb",
+                "keto",
+                "vegetarian"
+            ],
+
+        image:
+            "cauliflower fried rice"
+
+    },
+
+
+    {
+        name:
+            "Greek Yogurt Berry Bowl",
+
+        icon:
+            "fa-ice-cream",
 
         time:
             5,
@@ -2358,172 +2726,1336 @@ const RECIPES = [
         calories:
             240,
 
+        protein:
+            18,
+
+        carbs:
+            27,
+
+        fats:
+            6,
+
+        fiber:
+            6,
+
+        sodium:
+            95,
+
+        potassium:
+            330,
+
+        calcium:
+            210,
+
+        iron:
+            1.1,
+
+        vitaminC:
+            39,
+
         tags:
             [
-                'vegetarian',
-                'high-protein',
-                'quick-prep'
+                "high-protein",
+                "quick-prep",
+                "vegetarian"
             ],
 
-        ingredients:
-            [
-                'greek yogurt',
-                'berries',
-                'honey',
-                'almonds'
-            ]
+        image:
+            "greek yogurt berry bowl"
 
     },
 
 
     {
         name:
-            'Almond Butter Protein Smoothie',
+            "Masala Oats Bowl",
 
         icon:
-            'fa-blender',
+            "fa-bowl-food",
 
         time:
-            5,
+            12,
 
         calories:
-            330,
+            290,
+
+        protein:
+            11,
+
+        carbs:
+            43,
+
+        fats:
+            9,
+
+        fiber:
+            8,
+
+        sodium:
+            410,
+
+        potassium:
+            420,
+
+        calcium:
+            74,
+
+        iron:
+            3.1,
+
+        vitaminC:
+            25,
 
         tags:
             [
-                'vegetarian',
-                'quick-prep',
-                'high-protein'
+                "vegetarian",
+                "quick-prep"
             ],
 
-        ingredients:
+        image:
+            "masala oats"
+
+    },
+
+
+    {
+        name:
+            "Moong Dal Chilla",
+
+        icon:
+            "fa-seedling",
+
+        time:
+            20,
+
+        calories:
+            280,
+
+        protein:
+            16,
+
+        carbs:
+            37,
+
+        fats:
+            7,
+
+        fiber:
+            8,
+
+        sodium:
+            330,
+
+        potassium:
+            560,
+
+        calcium:
+            86,
+
+        iron:
+            3.7,
+
+        vitaminC:
+            12,
+
+        tags:
             [
-                'almond butter',
-                'banana',
-                'milk',
-                'oats'
-            ]
+                "high-protein",
+                "vegetarian"
+            ],
+
+        image:
+            "moong dal chilla"
+
+    },
+
+
+    {
+        name:
+            "Paneer Bhurji Bowl",
+
+        icon:
+            "fa-bowl-food",
+
+        time:
+            15,
+
+        calories:
+            350,
+
+        protein:
+            25,
+
+        carbs:
+            16,
+
+        fats:
+            22,
+
+        fiber:
+            4,
+
+        sodium:
+            510,
+
+        potassium:
+            450,
+
+        calcium:
+            340,
+
+        iron:
+            2.4,
+
+        vitaminC:
+            25,
+
+        tags:
+            [
+                "high-protein",
+                "low-carb",
+                "quick-prep",
+                "vegetarian"
+            ],
+
+        image:
+            "paneer bhurji"
+
+    },
+
+
+    {
+        name:
+            "Rajma Quinoa Bowl",
+
+        icon:
+            "fa-wheat-awn",
+
+        time:
+            25,
+
+        calories:
+            430,
+
+        protein:
+            18,
+
+        carbs:
+            62,
+
+        fats:
+            11,
+
+        fiber:
+            14,
+
+        sodium:
+            470,
+
+        potassium:
+            810,
+
+        calcium:
+            105,
+
+        iron:
+            5.2,
+
+        vitaminC:
+            22,
+
+        tags:
+            [
+                "vegan",
+                "high-protein",
+                "vegetarian"
+            ],
+
+        image:
+            "rajma quinoa bowl"
+
+    },
+
+
+    {
+        name:
+            "Vegetable Poha",
+
+        icon:
+            "fa-bowl-food",
+
+        time:
+            15,
+
+        calories:
+            300,
+
+        protein:
+            8,
+
+        carbs:
+            48,
+
+        fats:
+            8,
+
+        fiber:
+            5,
+
+        sodium:
+            390,
+
+        potassium:
+            370,
+
+        calcium:
+            62,
+
+        iron:
+            2.6,
+
+        vitaminC:
+            34,
+
+        tags:
+            [
+                "vegan",
+                "vegetarian",
+                "quick-prep"
+            ],
+
+        image:
+            "vegetable poha"
+
+    },
+
+
+    {
+        name:
+            "Palak Paneer Light",
+
+        icon:
+            "fa-leaf",
+
+        time:
+            30,
+
+        calories:
+            370,
+
+        protein:
+            23,
+
+        carbs:
+            17,
+
+        fats:
+            23,
+
+        fiber:
+            7,
+
+        sodium:
+            560,
+
+        potassium:
+            720,
+
+        calcium:
+            355,
+
+        iron:
+            5.2,
+
+        vitaminC:
+            38,
+
+        tags:
+            [
+                "high-protein",
+                "low-carb",
+                "vegetarian"
+            ],
+
+        image:
+            "palak paneer"
+
+    },
+
+
+    {
+        name:
+            "Chana Masala Bowl",
+
+        icon:
+            "fa-bowl-food",
+
+        time:
+            30,
+
+        calories:
+            390,
+
+        protein:
+            17,
+
+        carbs:
+            54,
+
+        fats:
+            10,
+
+        fiber:
+            14,
+
+        sodium:
+            580,
+
+        potassium:
+            790,
+
+        calcium:
+            104,
+
+        iron:
+            5.1,
+
+        vitaminC:
+            36,
+
+        tags:
+            [
+                "vegan",
+                "high-protein",
+                "vegetarian"
+            ],
+
+        image:
+            "chana masala"
+
+    },
+
+
+    {
+        name:
+            "Dal Khichdi",
+
+        icon:
+            "fa-bowl-food",
+
+        time:
+            28,
+
+        calories:
+            340,
+
+        protein:
+            14,
+
+        carbs:
+            54,
+
+        fats:
+            8,
+
+        fiber:
+            9,
+
+        sodium:
+            410,
+
+        potassium:
+            520,
+
+        calcium:
+            79,
+
+        iron:
+            3.9,
+
+        vitaminC:
+            28,
+
+        tags:
+            [
+                "vegan",
+                "vegetarian"
+            ],
+
+        image:
+            "dal khichdi"
+
+    },
+
+
+    {
+        name:
+            "Besan Chilla Wrap",
+
+        icon:
+            "fa-seedling",
+
+        time:
+            18,
+
+        calories:
+            320,
+
+        protein:
+            15,
+
+        carbs:
+            39,
+
+        fats:
+            11,
+
+        fiber:
+            8,
+
+        sodium:
+            430,
+
+        potassium:
+            480,
+
+        calcium:
+            91,
+
+        iron:
+            3.6,
+
+        vitaminC:
+            33,
+
+        tags:
+            [
+                "high-protein",
+                "quick-prep",
+                "vegetarian"
+            ],
+
+        image:
+            "besan chilla"
+
+    },
+
+
+    {
+        name:
+            "Sprouted Moong Salad",
+
+        icon:
+            "fa-leaf",
+
+        time:
+            10,
+
+        calories:
+            240,
+
+        protein:
+            14,
+
+        carbs:
+            33,
+
+        fats:
+            7,
+
+        fiber:
+            9,
+
+        sodium:
+            260,
+
+        potassium:
+            600,
+
+        calcium:
+            72,
+
+        iron:
+            3,
+
+        vitaminC:
+            41,
+
+        tags:
+            [
+                "vegan",
+                "quick-prep",
+                "vegetarian",
+                "low-carb"
+            ],
+
+        image:
+            "sprouted moong salad"
+
+    },
+
+
+    {
+        name:
+            "Paneer Mint Salad",
+
+        icon:
+            "fa-leaf",
+
+        time:
+            10,
+
+        calories:
+            340,
+
+        protein:
+            24,
+
+        carbs:
+            14,
+
+        fats:
+            22,
+
+        fiber:
+            5,
+
+        sodium:
+            470,
+
+        potassium:
+            470,
+
+        calcium:
+            300,
+
+        iron:
+            2.4,
+
+        vitaminC:
+            35,
+
+        tags:
+            [
+                "high-protein",
+                "low-carb",
+                "quick-prep",
+                "vegetarian"
+            ],
+
+        image:
+            "paneer salad"
+
+    },
+
+
+    {
+        name:
+            "Vegetable Hummus Wrap",
+
+        icon:
+            "fa-burrito",
+
+        time:
+            10,
+
+        calories:
+            350,
+
+        protein:
+            12,
+
+        carbs:
+            40,
+
+        fats:
+            16,
+
+        fiber:
+            9,
+
+        sodium:
+            520,
+
+        potassium:
+            540,
+
+        calcium:
+            110,
+
+        iron:
+            3.4,
+
+        vitaminC:
+            47,
+
+        tags:
+            [
+                "vegan",
+                "quick-prep",
+                "vegetarian"
+            ],
+
+        image:
+            "vegetable hummus wrap"
+
+    },
+
+    {
+        name:
+            "Sweet Potato Chickpea Bowl",
+
+        icon:
+            "fa-bowl-food",
+
+        time:
+            25,
+
+        calories:
+            400,
+
+        protein:
+            14,
+
+        carbs:
+            58,
+
+        fats:
+            12,
+
+        fiber:
+            13,
+
+        sodium:
+            340,
+
+        potassium:
+            940,
+
+        calcium:
+            102,
+
+        iron:
+            4.2,
+
+        vitaminC:
+            32,
+
+        tags:
+            [
+                "vegan",
+                "vegetarian"
+            ],
+
+        image:
+            "sweet potato chickpea bowl"
+
+    },
+
+    {
+        name:
+            "Matar Paneer Bowl",
+
+        icon:
+            "fa-bowl-food",
+
+        time:
+            25,
+
+        calories:
+            410,
+
+        protein:
+            23,
+
+        carbs:
+            25,
+
+        fats:
+            22,
+
+        fiber:
+            7,
+
+        sodium:
+            570,
+
+        potassium:
+            580,
+
+        calcium:
+            315,
+
+        iron:
+            3,
+
+        vitaminC:
+            30,
+
+        tags:
+            [
+                "high-protein",
+                "vegetarian"
+            ],
+
+        image:
+            "matar paneer"
+
+    },
+
+    {
+        name:
+            "Avocado Tofu Toast",
+
+        icon:
+            "fa-bread-slice",
+
+        time:
+            10,
+
+        calories:
+            310,
+
+        protein:
+            15,
+
+        carbs:
+            29,
+
+        fats:
+            17,
+
+        fiber:
+            8,
+
+        sodium:
+            340,
+
+        potassium:
+            560,
+
+        calcium:
+            170,
+
+        iron:
+            3.1,
+
+        vitaminC:
+            20,
+
+        tags:
+            [
+                "vegan",
+                "quick-prep",
+                "vegetarian"
+            ],
+
+        image:
+            "avocado tofu toast"
+
+    },
+
+    {
+        name:
+            "Peanut Vegetable Noodles",
+
+        icon:
+            "fa-bowl-food",
+
+        time:
+            20,
+
+        calories:
+            430,
+
+        protein:
+            15,
+
+        carbs:
+            53,
+
+        fats:
+            18,
+
+        fiber:
+            7,
+
+        sodium:
+            680,
+
+        potassium:
+            540,
+
+        calcium:
+            83,
+
+        iron:
+            3.9,
+
+        vitaminC:
+            52,
+
+        tags:
+            [
+                "vegan",
+                "quick-prep",
+                "vegetarian"
+            ],
+
+        image:
+            "peanut vegetable noodles"
+
+    },
+
+    {
+        name:
+            "Tofu Tikka Masala",
+
+        icon:
+            "fa-bowl-food",
+
+        time:
+            30,
+
+        calories:
+            400,
+
+        protein:
+            27,
+
+        carbs:
+            24,
+
+        fats:
+            20,
+
+        fiber:
+            7,
+
+        sodium:
+            610,
+
+        potassium:
+            670,
+
+        calcium:
+            290,
+
+        iron:
+            5,
+
+        vitaminC:
+            30,
+
+        tags:
+            [
+                "vegan",
+                "high-protein",
+                "vegetarian"
+            ],
+
+        image:
+            "tofu tikka masala"
+
+    },
+
+    {
+        name:
+            "Keto Paneer Lettuce Bowl",
+
+        icon:
+            "fa-leaf",
+
+        time:
+            12,
+
+        calories:
+            340,
+
+        protein:
+            27,
+
+        carbs:
+            11,
+
+        fats:
+            23,
+
+        fiber:
+            5,
+
+        sodium:
+            460,
+
+        potassium:
+            510,
+
+        calcium:
+            345,
+
+        iron:
+            2.5,
+
+        vitaminC:
+            31,
+
+        tags:
+            [
+                "high-protein",
+                "low-carb",
+                "keto",
+                "quick-prep",
+                "vegetarian"
+            ],
+
+        image:
+            "paneer lettuce bowl"
+
+    },
+
+    {
+        name:
+            "Zucchini Tofu Noodles",
+
+        icon:
+            "fa-bowl-food",
+
+        time:
+            18,
+
+        calories:
+            310,
+
+        protein:
+            25,
+
+        carbs:
+            18,
+
+        fats:
+            16,
+
+        fiber:
+            7,
+
+        sodium:
+            460,
+
+        potassium:
+            760,
+
+        calcium:
+            270,
+
+        iron:
+            4.6,
+
+        vitaminC:
+            57,
+
+        tags:
+            [
+                "vegan",
+                "high-protein",
+                "low-carb",
+                "keto",
+                "quick-prep",
+                "vegetarian"
+            ],
+
+        image:
+            "zucchini tofu noodles"
 
     }
 
 ];
 
 
+/* ================================================================
+   TAG LABELS
+   ================================================================ */
+
 const TAG_LABELS = {
 
-    vegetarian:
-        'Vegetarian',
+    "high-protein":
+        "High Protein",
 
-    'high-protein':
-        'High Protein',
-
-    'low-carb':
-        'Low Carb',
+    "low-carb":
+        "Low Carb",
 
     vegan:
-        'Vegan',
+        "Vegan",
 
     keto:
-        'Keto',
+        "Keto",
 
-    'quick-prep':
-        'Quick Prep'
+    "quick-prep":
+        "Quick Prep",
 
-};
-
-
-const recipeUIState = {
-
-    filter:
-        'all',
-
-    search:
-        ''
+    vegetarian:
+        "Vegetarian"
 
 };
 
 
-/* ---------------------------------------------------------------------
-   RECIPE INIT
---------------------------------------------------------------------- */
+/* ================================================================
+   MAKE 500+ RECIPES
+   ================================================================ */
 
-function initRecipes() {
+function generateRecipes() {
 
-    const search =
-        document.getElementById(
-            'recipeSearch'
-        );
+    const result = [];
 
+    const prefixes = [
 
-    const filters =
-        document.getElementById(
-            'recipeFilters'
-        );
+        "Healthy",
+        "Fresh",
+        "Protein",
+        "Power",
+        "Green",
+        "Balanced",
+        "Wholesome",
+        "Smart",
+        "Easy",
+        "Clean",
+        "Daily",
+        "Garden",
+        "Light",
+        "Wellness"
 
-
-    if (!search || !filters) {
-        return;
-    }
-
-
-    search.addEventListener(
-        'input',
-        (event) => {
-
-            recipeUIState.search =
-                event.target.value
-                    .trim()
-                    .toLowerCase();
+    ];
 
 
-            renderRecipes();
+    const suffixes = [
+
+        "Bowl",
+        "Plate",
+        "Meal Bowl",
+        "Power Bowl",
+        "Meal Prep",
+        "Lunch Bowl",
+        "Dinner Bowl",
+        "Healthy Plate",
+        "Nutrition Bowl"
+
+    ];
+
+
+    BASE_RECIPES.forEach(
+        function (base, baseIndex) {
+
+            result.push({
+                ...base,
+                id: `base-${baseIndex}`
+            });
+
+
+            prefixes.forEach(
+                function (prefix, pIndex) {
+
+                    suffixes.forEach(
+                        function (suffix, sIndex) {
+
+                            if (
+                                result.length >=
+                                600
+                            ) {
+                                return;
+                            }
+
+
+                            const calories =
+                                Math.max(
+                                    180,
+                                    base.calories +
+                                    ((pIndex * 13 +
+                                      sIndex * 7 +
+                                      baseIndex * 3) % 55) -
+                                    20
+                                );
+
+
+                            const protein =
+                                Math.max(
+                                    5,
+                                    base.protein +
+                                    ((pIndex +
+                                      baseIndex) % 5) -
+                                    2
+                                );
+
+
+                            const carbs =
+                                Math.max(
+                                    8,
+                                    base.carbs +
+                                    ((sIndex +
+                                      baseIndex) % 7) -
+                                    3
+                                );
+
+
+                            const fats =
+                                Math.max(
+                                    4,
+                                    base.fats +
+                                    ((pIndex +
+                                      sIndex) % 4) -
+                                    1
+                                );
+
+
+                            result.push({
+
+                                ...base,
+
+                                id:
+                                    `${baseIndex}-${pIndex}-${sIndex}`,
+
+                                name:
+                                    `${prefix} ${base.name} ${suffix}`,
+
+                                calories,
+
+                                protein,
+
+                                carbs,
+
+                                fats,
+
+                                fiber:
+                                    Math.max(
+                                        2,
+                                        base.fiber +
+                                        ((pIndex +
+                                          sIndex) % 3)
+                                    ),
+
+                                sodium:
+                                    base.sodium +
+                                    ((pIndex *
+                                      17) % 100),
+
+                                potassium:
+                                    base.potassium +
+                                    ((sIndex *
+                                      21) % 120),
+
+                                calcium:
+                                    base.calcium +
+                                    ((pIndex *
+                                      9) % 60),
+
+                                iron:
+                                    Math.max(
+                                        0.5,
+                                        base.iron +
+                                        ((sIndex %
+                                          4) * 0.2)
+                                    ),
+
+                                vitaminC:
+                                    base.vitaminC +
+                                    ((pIndex *
+                                      3) % 20)
+
+                            });
+
+                        }
+                    );
+
+                }
+            );
 
         }
     );
 
 
-    filters
-        .querySelectorAll(
-            '.filter-tag'
-        )
-        .forEach(
-            (button) => {
+    return result.slice(
+        0,
+        600
+    );
 
-                button.addEventListener(
-                    'click',
-                    () => {
+}
 
-                        filters
-                            .querySelectorAll(
-                                '.filter-tag'
-                            )
-                            .forEach(
-                                (item) => {
 
-                                    item.classList.remove(
-                                        'is-active'
-                                    );
+const RECIPES =
+    generateRecipes();
 
-                                }
+
+/* ================================================================
+   8. RECIPES
+   ================================================================ */
+
+function initRecipes() {
+
+    const buttons =
+        document.querySelectorAll(
+            ".filter-tag"
+        );
+
+
+    const search =
+        document.getElementById(
+            "recipeSearch"
+        );
+
+
+    buttons.forEach(
+        function (button) {
+
+            button.addEventListener(
+                "click",
+                function () {
+
+                    buttons.forEach(
+                        function (item) {
+
+                            item.classList.remove(
+                                "is-active"
                             );
 
-
-                        button.classList.add(
-                            'is-active'
-                        );
+                        }
+                    );
 
 
-                        recipeUIState.filter =
-                            button.dataset.filter;
+                    button.classList.add(
+                        "is-active"
+                    );
 
 
-                        renderRecipes();
+                    recipeState.filter =
+                        button.dataset.filter ||
+                        "all";
 
-                    }
-                );
+
+                    renderRecipes();
+
+                }
+            );
+
+        }
+    );
+
+
+    if (search) {
+
+        search.addEventListener(
+            "input",
+            function (event) {
+
+                recipeState.search =
+                    event.target.value
+                        .trim()
+                        .toLowerCase();
+
+
+                renderRecipes();
 
             }
         );
+
+    }
 
 
     renderRecipes();
@@ -2531,21 +4063,17 @@ function initRecipes() {
 }
 
 
-/* ---------------------------------------------------------------------
-   RENDER RECIPES
---------------------------------------------------------------------- */
-
 function renderRecipes() {
 
     const grid =
         document.getElementById(
-            'recipeGrid'
+            "recipeGrid"
         );
 
 
     const empty =
         document.getElementById(
-            'recipeEmpty'
+            "recipeEmpty"
         );
 
 
@@ -2556,54 +4084,48 @@ function renderRecipes() {
 
     const filtered =
         RECIPES.filter(
-            (recipe) => {
+            function (recipe) {
 
-                const matchesFilter =
-                    recipeUIState.filter ===
-                        'all'
-                    ||
+                const filterMatches =
+                    recipeState.filter ===
+                        "all" ||
                     recipe.tags.includes(
-                        recipeUIState.filter
+                        recipeState.filter
                     );
 
 
-                const searchableText =
+                const searchable =
                     [
-
                         recipe.name,
 
-                        ...recipe.ingredients,
-
-                        ...recipe.tags,
+                        recipe.image,
 
                         ...recipe.tags.map(
-                            (tag) =>
-                                TAG_LABELS[tag] ||
-                                tag
-                        ),
+                            function (tag) {
 
-                        String(
-                            recipe.calories
-                        ),
+                                return (
+                                    TAG_LABELS[tag] ||
+                                    tag
+                                );
 
-                        `${recipe.time} min`
+                            }
+                        )
 
                     ]
-                        .join(' ')
+                        .join(" ")
                         .toLowerCase();
 
 
-                const matchesSearch =
-                    !recipeUIState.search
-                    ||
-                    searchableText.includes(
-                        recipeUIState.search
+                const searchMatches =
+                    !recipeState.search ||
+                    searchable.includes(
+                        recipeState.search
                     );
 
 
                 return (
-                    matchesFilter &&
-                    matchesSearch
+                    filterMatches &&
+                    searchMatches
                 );
 
             }
@@ -2611,7 +4133,7 @@ function renderRecipes() {
 
 
     grid.innerHTML =
-        '';
+        "";
 
 
     if (empty) {
@@ -2623,22 +4145,44 @@ function renderRecipes() {
 
 
     filtered.forEach(
-        (recipe, index) => {
+        function (recipe, index) {
 
             const card =
                 document.createElement(
-                    'article'
+                    "article"
                 );
 
 
             card.className =
-                'recipe-card';
+                "recipe-card";
+
+
+            card.tabIndex =
+                0;
+
+
+            card.setAttribute(
+                "role",
+                "button"
+            );
+
+
+            card.setAttribute(
+                "aria-label",
+                `Open ${recipe.name}`
+            );
+
+
+            const image =
+                getRecipeImage(
+                    recipe
+                );
 
 
             const hue =
-                (
-                    index * 47
-                ) % 360;
+                (index *
+                    47) %
+                360;
 
 
             card.innerHTML = `
@@ -2649,26 +4193,23 @@ function renderRecipes() {
                         background:
                         linear-gradient(
                             135deg,
-                            hsl(
+                            hsla(
                                 ${hue},
-                                60%,
-                                30%
+                                65%,
+                                25%,
+                                .25
                             ),
-                            hsl(
-                                ${(hue + 40) % 360},
-                                55%,
-                                20%
+                            hsla(
+                                ${(hue + 45) % 360},
+                                60%,
+                                15%,
+                                .25
                             )
-                        );
+                        ),
+                        url('${image}')
+                        center / cover no-repeat;
                     "
                 >
-
-                    <i
-                        class="fa-solid ${escapeHTML(
-                            recipe.icon
-                        )}"
-                    ></i>
-
 
                     <span class="recipe-card-time">
 
@@ -2693,7 +4234,9 @@ function renderRecipes() {
                     <p class="recipe-card-calories">
 
                         <b>
-                            ${recipe.calories}
+                            ${formatNumber(
+                                recipe.calories
+                            )}
                         </b>
 
                         kcal per serving
@@ -2705,28 +4248,61 @@ function renderRecipes() {
 
                         ${recipe.tags
                             .map(
-                                (tag) => `
+                                function (tag) {
 
-                                    <span
-                                        class="recipe-card-tag"
-                                    >
+                                    return `
+                                        <span class="recipe-card-tag">
+                                            ${escapeHTML(
+                                                TAG_LABELS[tag] ||
+                                                tag
+                                            )}
+                                        </span>
+                                    `;
 
-                                        ${escapeHTML(
-                                            TAG_LABELS[tag] ||
-                                            tag
-                                        )}
-
-                                    </span>
-
-                                `
+                                }
                             )
-                            .join('')}
+                            .join("")}
 
                     </div>
 
                 </div>
 
             `;
+
+
+            card.addEventListener(
+                "click",
+                function () {
+
+                    openRecipeModal(
+                        recipe
+                    );
+
+                }
+            );
+
+
+            card.addEventListener(
+                "keydown",
+                function (event) {
+
+                    if (
+                        event.key ===
+                            "Enter" ||
+                        event.key ===
+                            " "
+                    ) {
+
+                        event.preventDefault();
+
+                        openRecipeModal(
+                            recipe
+                        );
+
+                    }
+
+                }
+            );
 
 
             grid.appendChild(
@@ -2736,1252 +4312,125 @@ function renderRecipes() {
         }
     );
 
+}
 
-    renderRecipeRecommendation();
+
+/* ================================================================
+   RECIPE IMAGE
+   ================================================================ */
+
+function getRecipeImage(
+    recipe
+) {
+
+    const query =
+        recipe.image ||
+        recipe.name ||
+        "healthy vegetarian food";
+
+
+    return (
+        "https://loremflickr.com/900/650/" +
+        encodeURIComponent(
+            query
+        ) +
+        "?lock=" +
+        Math.abs(
+            hashString(
+                recipe.name
+            )
+        )
+    );
 
 }
 
 
-/* ---------------------------------------------------------------------
-   RECIPE RECOMMENDATION
---------------------------------------------------------------------- */
-
-function renderRecipeRecommendation() {
-
-    const box =
-        document.getElementById(
-            'recipeRecommendation'
-        );
-
-
-    if (!box) {
-        return;
-    }
-
-
-    if (
-        recipeUIState.filter ===
-            'all'
-        ||
-        recipeUIState.search
-    ) {
-
-        box.hidden =
-            true;
-
-        box.innerHTML =
-            '';
-
-        return;
-
-    }
-
-
-    const selected =
-        RECIPES.filter(
-            (recipe) =>
-                recipe.tags.includes(
-                    recipeUIState.filter
-                )
-        );
-
-
-    if (!selected.length) {
-
-        box.hidden =
-            true;
-
-        return;
-
-    }
-
-
-    const names =
-        selected
-            .slice(0, 3)
-            .map(
-                (recipe) =>
-                    recipe.name
-            );
-
-
-    const label =
-        TAG_LABELS[
-            recipeUIState.filter
-        ] ||
-        'Healthy';
-
-
-    box.innerHTML = `
-
-        <strong>
-
-            <i
-                class="fa-solid fa-wand-magic-sparkles"
-            ></i>
-
-            ${label} picks for you
-
-        </strong>
-
-
-        <span>
-
-            You can try
-            ${names.join(', ')}.
-
-        </span>
-
-    `;
-
-
-    box.hidden =
-        false;
-
-}
-
-
-/* =====================================================================
-   MANUAL FOOD DATABASE
-===================================================================== */
-
-/*
- * IMPORTANT:
- *
- * This is a starter vegetarian food database.
- *
- * Food nutrition varies by brand, preparation method,
- * oil, recipe and portion size, so these values should
- * be treated as estimates.
- */
-
-
-const FOOD_DATABASE = [
-
-    {
-        id:
-            'rice',
-
-        name:
-            'Cooked White Rice',
-
-        category:
-            'Indian Staples',
-
-        servings: {
-
-            serving: '1 katori',
-
-            katori: '1 katori',
-
-            bowl: '1 bowl',
-
-            cup: '1 cup'
-
-        },
-
-        nutrition: {
-
-            calories: 195,
-
-            protein: 4.1,
-
-            carbs: 42.3,
-
-            fats: 0.4,
-
-            fiber: 0.6,
-
-            sodium: 2,
-
-            potassium: 63,
-
-            calcium: 16,
-
-            iron: 0.3,
-
-            vitaminC: 0
-
-        }
-
-    },
-
-
-    {
-        id:
-            'dal',
-
-        name:
-            'Dal / Lentil Curry',
-
-        category:
-            'Indian Foods',
-
-        servings: {
-
-            serving: '1 katori',
-
-            katori: '1 katori',
-
-            bowl: '1 bowl',
-
-            cup: '1 cup'
-
-        },
-
-        nutrition: {
-
-            calories: 175,
-
-            protein: 9,
-
-            carbs: 27,
-
-            fats: 4,
-
-            fiber: 8,
-
-            sodium: 260,
-
-            potassium: 390,
-
-            calcium: 35,
-
-            iron: 3,
-
-            vitaminC: 3
-
-        }
-
-    },
-
-
-    {
-        id:
-            'roti',
-
-        name:
-            'Roti / Chapati',
-
-        category:
-            'Indian Foods',
-
-        servings: {
-
-            serving:
-                '1 roti',
-
-            roti:
-                '1 roti',
-
-            chapati:
-                '1 chapati',
-
-            piece:
-                '1 piece'
-
-        },
-
-        nutrition: {
-
-            calories: 110,
-
-            protein: 3.5,
-
-            carbs: 18,
-
-            fats: 2.5,
-
-            fiber: 2.7,
-
-            sodium: 120,
-
-            potassium: 90,
-
-            calcium: 15,
-
-            iron: 1.2,
-
-            vitaminC: 0
-
-        }
-
-    },
-
-
-    {
-        id:
-            'paratha',
-
-        name:
-            'Plain Paratha',
-
-        category:
-            'Indian Foods',
-
-        servings: {
-
-            serving:
-                '1 paratha',
-
-            piece:
-                '1 piece'
-
-        },
-
-        nutrition: {
-
-            calories: 210,
-
-            protein: 4.5,
-
-            carbs: 28,
-
-            fats: 9,
-
-            fiber: 2,
-
-            sodium: 220,
-
-            potassium: 90,
-
-            calcium: 20,
-
-            iron: 1.3,
-
-            vitaminC: 0
-
-        }
-
-    },
-
-
-    {
-        id:
-            'paneer',
-
-        name:
-            'Paneer',
-
-        category:
-            'Dairy',
-
-        servings: {
-
-            serving:
-                '100g',
-
-            katori:
-                '1 katori',
-
-            bowl:
-                '1 bowl',
-
-            piece:
-                '1 piece'
-
-        },
-
-        nutrition: {
-
-            calories: 265,
-
-            protein: 18.3,
-
-            carbs: 6.1,
-
-            fats: 20.8,
-
-            fiber: 0,
-
-            sodium: 22,
-
-            potassium: 104,
-
-            calcium: 208,
-
-            iron: 2.1,
-
-            vitaminC: 0
-
-        }
-
-    },
-
-
-    {
-        id:
-            'curd',
-
-        name:
-            'Plain Curd / Yogurt',
-
-        category:
-            'Dairy',
-
-        servings: {
-
-            serving:
-                '1 katori',
-
-            katori:
-                '1 katori',
-
-            bowl:
-                '1 bowl',
-
-            cup:
-                '1 cup'
-
-        },
-
-        nutrition: {
-
-            calories: 92,
-
-            protein: 5.3,
-
-            carbs: 7,
-
-            fats: 4.8,
-
-            fiber: 0,
-
-            sodium: 70,
-
-            potassium: 234,
-
-            calcium: 180,
-
-            iron: 0.1,
-
-            vitaminC: 1
-
-        }
-
-    },
-
-
-    {
-        id:
-            'milk',
-
-        name:
-            'Milk',
-
-        category:
-            'Dairy',
-
-        servings: {
-
-            serving:
-                '1 glass',
-
-            glass:
-                '1 glass',
-
-            cup:
-                '1 cup'
-
-        },
-
-        nutrition: {
-
-            calories: 153,
-
-            protein: 8,
-
-            carbs: 12,
-
-            fats: 8,
-
-            fiber: 0,
-
-            sodium: 105,
-
-            potassium: 322,
-
-            calcium: 300,
-
-            iron: 0.1,
-
-            vitaminC: 0
-
-        }
-
-    },
-
-
-    {
-        id:
-            'banana',
-
-        name:
-            'Banana',
-
-        category:
-            'Fruit',
-
-        servings: {
-
-            serving:
-                '1 banana',
-
-            piece:
-                '1 piece'
-
-        },
-
-        nutrition: {
-
-            calories: 105,
-
-            protein: 1.3,
-
-            carbs: 27,
-
-            fats: 0.4,
-
-            fiber: 3.1,
-
-            sodium: 1,
-
-            potassium: 422,
-
-            calcium: 6,
-
-            iron: 0.3,
-
-            vitaminC: 10.3
-
-        }
-
-    },
-
-
-    {
-        id:
-            'apple',
-
-        name:
-            'Apple',
-
-        category:
-            'Fruit',
-
-        servings: {
-
-            serving:
-                '1 apple',
-
-            piece:
-                '1 piece'
-
-        },
-
-        nutrition: {
-
-            calories: 95,
-
-            protein: 0.5,
-
-            carbs: 25,
-
-            fats: 0.3,
-
-            fiber: 4.4,
-
-            sodium: 2,
-
-            potassium: 195,
-
-            calcium: 11,
-
-            iron: 0.2,
-
-            vitaminC: 8.4
-
-        }
-
-    },
-
-
-    {
-        id:
-            'chickpeas',
-
-        name:
-            'Chickpeas / Chana',
-
-        category:
-            'Legumes',
-
-        servings: {
-
-            serving:
-                '1 katori',
-
-            katori:
-                '1 katori',
-
-            bowl:
-                '1 bowl'
-
-        },
-
-        nutrition: {
-
-            calories: 246,
-
-            protein: 13.5,
-
-            carbs: 40.5,
-
-            fats: 4,
-
-            fiber: 10.5,
-
-            sodium: 11,
-
-            potassium: 477,
-
-            calcium: 80,
-
-            iron: 4.7,
-
-            vitaminC: 1.3
-
-        }
-
-    },
-
-
-    {
-        id:
-            'rajma',
-
-        name:
-            'Rajma',
-
-        category:
-            'Indian Foods',
-
-        servings: {
-
-            serving:
-                '1 katori',
-
-            katori:
-                '1 katori',
-
-            bowl:
-                '1 bowl'
-
-        },
-
-        nutrition: {
-
-            calories: 190,
-
-            protein: 12,
-
-            carbs: 34,
-
-            fats: 1,
-
-            fiber: 9,
-
-            sodium: 10,
-
-            potassium: 400,
-
-            calcium: 70,
-
-            iron: 2.8,
-
-            vitaminC: 2
-
-        }
-
-    },
-
-
-    {
-        id:
-            'sabzi',
-
-        name:
-            'Mixed Vegetable Sabzi',
-
-        category:
-            'Indian Foods',
-
-        servings: {
-
-            serving:
-                '1 katori',
-
-            katori:
-                '1 katori',
-
-            bowl:
-                '1 bowl'
-
-        },
-
-        nutrition: {
-
-            calories: 120,
-
-            protein: 4,
-
-            carbs: 16,
-
-            fats: 5,
-
-            fiber: 5,
-
-            sodium: 180,
-
-            potassium: 350,
-
-            calcium: 50,
-
-            iron: 1.5,
-
-            vitaminC: 35
-
-        }
-
-    },
-
-
-    {
-        id:
-            'poha',
-
-        name:
-            'Vegetable Poha',
-
-        category:
-            'Indian Breakfast',
-
-        servings: {
-
-            serving:
-                '1 katori',
-
-            katori:
-                '1 katori',
-
-            bowl:
-                '1 bowl'
-
-        },
-
-        nutrition: {
-
-            calories: 180,
-
-            protein: 4,
-
-            carbs: 32,
-
-            fats: 4,
-
-            fiber: 2.5,
-
-            sodium: 220,
-
-            potassium: 120,
-
-            calcium: 20,
-
-            iron: 2,
-
-            vitaminC: 15
-
-        }
-
-    },
-
-
-    {
-        id:
-            'upma',
-
-        name:
-            'Vegetable Upma',
-
-        category:
-            'Indian Breakfast',
-
-        servings: {
-
-            serving:
-                '1 katori',
-
-            katori:
-                '1 katori',
-
-            bowl:
-                '1 bowl'
-
-        },
-
-        nutrition: {
-
-            calories: 190,
-
-            protein: 5,
-
-            carbs: 32,
-
-            fats: 5,
-
-            fiber: 3,
-
-            sodium: 240,
-
-            potassium: 150,
-
-            calcium: 25,
-
-            iron: 1.8,
-
-            vitaminC: 12
-
-        }
-
-    },
-
-
-    {
-        id:
-            'idli',
-
-        name:
-            'Idli',
-
-        category:
-            'Indian Breakfast',
-
-        servings: {
-
-            serving:
-                '1 idli',
-
-            piece:
-                '1 piece'
-
-        },
-
-        nutrition: {
-
-            calories: 58,
-
-            protein: 2,
-
-            carbs: 12,
-
-            fats: 0.4,
-
-            fiber: 0.8,
-
-            sodium: 120,
-
-            potassium: 35,
-
-            calcium: 10,
-
-            iron: 0.5,
-
-            vitaminC: 0
-
-        }
-
-    },
-
-
-    {
-        id:
-            'dosa',
-
-        name:
-            'Plain Dosa',
-
-        category:
-            'Indian Breakfast',
-
-        servings: {
-
-            serving:
-                '1 dosa',
-
-            piece:
-                '1 piece'
-
-        },
-
-        nutrition: {
-
-            calories: 168,
-
-            protein: 3.5,
-
-            carbs: 29,
-
-            fats: 4,
-
-            fiber: 1,
-
-            sodium: 180,
-
-            potassium: 80,
-
-            calcium: 12,
-
-            iron: 1.3,
-
-            vitaminC: 0
-
-        }
-
-    },
-
-
-    {
-        id:
-            'oats',
-
-        name:
-            'Cooked Oatmeal',
-
-        category:
-            'Breakfast',
-
-        servings: {
-
-            serving:
-                '1 bowl',
-
-            bowl:
-                '1 bowl',
-
-            cup:
-                '1 cup',
-
-            katori:
-                '1 katori'
-
-        },
-
-        nutrition: {
-
-            calories: 107,
-
-            protein: 3.8,
-
-            carbs: 18.6,
-
-            fats: 1.9,
-
-            fiber: 2.7,
-
-            sodium: 49,
-
-            potassium: 90,
-
-            calcium: 52,
-
-            iron: 1.3,
-
-            vitaminC: 0
-
-        }
-
-    },
-
-
-    {
-        id:
-            'tofu',
-
-        name:
-            'Tofu',
-
-        category:
-            'Plant Protein',
-
-        servings: {
-
-            serving:
-                '100g',
-
-            katori:
-                '1 katori',
-
-            bowl:
-                '1 bowl'
-
-        },
-
-        nutrition: {
-
-            calories: 144,
-
-            protein: 17,
-
-            carbs: 3,
-
-            fats: 8,
-
-            fiber: 2,
-
-            sodium: 14,
-
-            potassium: 237,
-
-            calcium: 350,
-
-            iron: 2.7,
-
-            vitaminC: 0
-
-        }
-
-    },
-
-
-    {
-        id:
-            'almonds',
-
-        name:
-            'Almonds',
-
-        category:
-            'Nuts',
-
-        servings: {
-
-            serving:
-                '1 handful',
-
-            piece:
-                '1 handful'
-
-        },
-
-        nutrition: {
-
-            calories: 164,
-
-            protein: 6,
-
-            carbs: 6.1,
-
-            fats: 14.2,
-
-            fiber: 3.5,
-
-            sodium: 0,
-
-            potassium: 208,
-
-            calcium: 76,
-
-            iron: 1,
-
-            vitaminC: 0
-
-        }
-
-    },
-
-
-    {
-        id:
-            'peanut-butter',
-
-        name:
-            'Peanut Butter',
-
-        category:
-            'Spreads',
-
-        servings: {
-
-            serving:
-                '1 tablespoon',
-
-            tablespoon:
-                '1 tablespoon',
-
-            teaspoon:
-                '1 teaspoon'
-
-        },
-
-        nutrition: {
-
-            calories: 94,
-
-            protein: 4,
-
-            carbs: 3,
-
-            fats: 8,
-
-            fiber: 1,
-
-            sodium: 73,
-
-            potassium: 100,
-
-            calcium: 17,
-
-            iron: 0.4,
-
-            vitaminC: 0
-
-        }
-
-    }
-
-];
-
-
-/* =====================================================================
-   MANUAL FOOD STATE
-===================================================================== */
-
-const manualFoodState = {
-
-    selectedFood:
-        '',
-
-    unit:
-        'serving'
-
-};
-
-
-/* =====================================================================
-   MANUAL FOOD INIT
-===================================================================== */
-
-function initManualFoodEntry() {
-
-    const openButton =
-        document.getElementById(
-            'openManualFoodBtn'
-        );
-
+/* ================================================================
+   9. RECIPE MODAL
+   ================================================================ */
+
+function initRecipeModal() {
 
     const modal =
         document.getElementById(
-            'manualFoodModal'
+            "recipeModal"
         );
 
 
-    const form =
-        document.getElementById(
-            'manualFoodForm'
-        );
-
-
-    if (
-        !openButton ||
-        !modal ||
-        !form
-    ) {
+    if (!modal) {
         return;
     }
 
 
-    openButton.addEventListener(
-        'click',
-        openManualFoodModal
-    );
-
-
-    document
-        .getElementById(
-            'closeManualFoodBtn'
-        )
-        .addEventListener(
-            'click',
-            closeManualFoodModal
+    const close =
+        document.getElementById(
+            "recipeModalClose"
         );
 
 
-    document
-        .getElementById(
-            'manualFoodBackdrop'
-        )
-        .addEventListener(
-            'click',
-            closeManualFoodModal
+    if (close) {
+
+        close.addEventListener(
+            "click",
+            closeRecipeModal
+        );
+
+    }
+
+
+    const backdrop =
+        document.querySelector(
+            "[data-close-recipe]"
         );
 
 
-    document
-        .getElementById(
-            'manualFoodSearch'
-        )
-        .addEventListener(
-            'input',
-            renderFoodOptions
+    if (backdrop) {
+
+        backdrop.addEventListener(
+            "click",
+            closeRecipeModal
+        );
+
+    }
+
+
+    const addButton =
+        document.getElementById(
+            "recipeAddMealBtn"
         );
 
 
-    document
-        .getElementById(
-            'manualFoodSelect'
-        )
-        .addEventListener(
-            'change',
-            handleFoodSelect
+    if (addButton) {
+
+        addButton.addEventListener(
+            "click",
+            function () {
+
+                if (activeRecipe) {
+
+                    addRecipeToMeal(
+                        activeRecipe
+                    );
+
+                }
+
+            }
         );
 
-
-    document
-        .getElementById(
-            'manualFoodAmount'
-        )
-        .addEventListener(
-            'input',
-            updateManualFoodNutrition
-        );
-
-
-    document
-        .getElementById(
-            'manualFoodUnit'
-        )
-        .addEventListener(
-            'change',
-            updateManualFoodNutrition
-        );
-
-
-    form.addEventListener(
-        'submit',
-        addManualFood
-    );
+    }
 
 
     document.addEventListener(
-        'keydown',
-        (event) => {
+        "keydown",
+        function (event) {
 
             if (
-                event.key === 'Escape' &&
-                !modal.hidden
+                event.key ===
+                    "Escape" &&
+                modal.hidden === false
             ) {
 
-                closeManualFoodModal();
+                closeRecipeModal();
 
             }
 
@@ -3991,16 +4440,214 @@ function initManualFoodEntry() {
 }
 
 
-/* ---------------------------------------------------------------------
-   OPEN MANUAL FOOD
---------------------------------------------------------------------- */
+function openRecipeModal(
+    recipe
+) {
 
-function openManualFoodModal() {
+    if (!recipe) {
+        return;
+    }
+
+
+    activeRecipe =
+        recipe;
+
 
     const modal =
         document.getElementById(
-            'manualFoodModal'
+            "recipeModal"
         );
+
+
+    if (!modal) {
+        return;
+    }
+
+
+    const image =
+        document.getElementById(
+            "recipeModalImage"
+        );
+
+
+    const kicker =
+        document.getElementById(
+            "recipeModalKicker"
+        );
+
+
+    const title =
+        document.getElementById(
+            "recipeModalTitle"
+        );
+
+
+    const meta =
+        document.getElementById(
+            "recipeModalMeta"
+        );
+
+
+    const tags =
+        document.getElementById(
+            "recipeModalTags"
+        );
+
+
+    const ingredients =
+        document.getElementById(
+            "recipeIngredients"
+        );
+
+
+    const steps =
+        document.getElementById(
+            "recipeSteps"
+        );
+
+
+    const nutrition =
+        document.getElementById(
+            "recipeNutrition"
+        );
+
+
+    if (image) {
+
+        image.src =
+            getRecipeImage(
+                recipe
+            );
+
+        image.alt =
+            recipe.name;
+
+    }
+
+
+    if (kicker) {
+
+        kicker.textContent =
+            "Vegetarian recipe";
+
+    }
+
+
+    if (title) {
+
+        title.textContent =
+            recipe.name;
+
+    }
+
+
+    if (meta) {
+
+        meta.innerHTML = `
+
+            <span>
+                <i class="fa-solid fa-fire"></i>
+                ${formatNumber(
+                    recipe.calories
+                )} kcal
+            </span>
+
+            <span>
+                <i class="fa-regular fa-clock"></i>
+                ${recipe.time} min
+            </span>
+
+            <span>
+                <i class="fa-solid fa-dumbbell"></i>
+                ${formatDecimal(
+                    recipe.protein
+                )}g protein
+            </span>
+
+        `;
+
+    }
+
+
+    if (tags) {
+
+        tags.innerHTML =
+            recipe.tags
+                .map(
+                    function (tag) {
+
+                        return `
+                            <span class="recipe-card-tag">
+                                ${escapeHTML(
+                                    TAG_LABELS[tag] ||
+                                    tag
+                                )}
+                            </span>
+                        `;
+
+                    }
+                )
+                .join("");
+
+    }
+
+
+    if (ingredients) {
+
+        ingredients.innerHTML =
+            getRecipeIngredients(
+                recipe
+            )
+                .map(
+                    function (item) {
+
+                        return `
+                            <li>
+                                ${escapeHTML(
+                                    item
+                                )}
+                            </li>
+                        `;
+
+                    }
+                )
+                .join("");
+
+    }
+
+
+    if (steps) {
+
+        steps.innerHTML =
+            getRecipeSteps(
+                recipe
+            )
+                .map(
+                    function (item) {
+
+                        return `
+                            <li>
+                                ${escapeHTML(
+                                    item
+                                )}
+                            </li>
+                        `;
+
+                    }
+                )
+                .join("");
+
+    }
+
+
+    if (nutrition) {
+
+        nutrition.innerHTML =
+            renderRecipeNutrition(
+                recipe
+            );
+
+    }
 
 
     modal.hidden =
@@ -4008,37 +4655,29 @@ function openManualFoodModal() {
 
 
     modal.setAttribute(
-        'aria-hidden',
-        'false'
+        "aria-hidden",
+        "false"
     );
 
 
-    document.body.style.overflow =
-        'hidden';
-
-
-    renderFoodOptions();
-
-
-    document
-        .getElementById(
-            'manualFoodSearch'
-        )
-        .focus();
+    document.body.classList.add(
+        "modal-open"
+    );
 
 }
 
 
-/* ---------------------------------------------------------------------
-   CLOSE MANUAL FOOD
---------------------------------------------------------------------- */
-
-function closeManualFoodModal() {
+function closeRecipeModal() {
 
     const modal =
         document.getElementById(
-            'manualFoodModal'
+            "recipeModal"
         );
+
+
+    if (!modal) {
+        return;
+    }
 
 
     modal.hidden =
@@ -4046,88 +4685,1736 @@ function closeManualFoodModal() {
 
 
     modal.setAttribute(
-        'aria-hidden',
-        'true'
+        "aria-hidden",
+        "true"
     );
 
 
-    document.body.style.overflow =
-        '';
+    document.body.classList.remove(
+        "modal-open"
+    );
+
+
+    activeRecipe =
+        null;
 
 }
 
 
-/* ---------------------------------------------------------------------
-   SEARCH FOOD OPTIONS
---------------------------------------------------------------------- */
+/* ================================================================
+   RECIPE INGREDIENTS
+   ================================================================ */
 
-function renderFoodOptions() {
+function getRecipeIngredients(
+    recipe
+) {
+
+    const name =
+        recipe.name.toLowerCase();
+
+
+    if (
+        name.includes(
+            "paneer"
+        )
+    ) {
+
+        return [
+
+            "Paneer",
+
+            "Capsicum",
+
+            "Onion",
+
+            "Tomato",
+
+            "Curd or Greek yogurt",
+
+            "Ginger-garlic paste",
+
+            "Turmeric",
+
+            "Red chilli powder",
+
+            "Cumin powder",
+
+            "Garam masala",
+
+            "Lemon juice",
+
+            "Fresh coriander",
+
+            "Salt"
+
+        ];
+
+    }
+
+
+    if (
+        name.includes(
+            "tofu"
+        )
+    ) {
+
+        return [
+
+            "Firm tofu",
+
+            "Broccoli",
+
+            "Bell pepper",
+
+            "Carrot",
+
+            "Onion",
+
+            "Garlic",
+
+            "Ginger",
+
+            "Soy sauce",
+
+            "Sesame oil",
+
+            "Black pepper",
+
+            "Chilli flakes",
+
+            "Fresh coriander"
+
+        ];
+
+    }
+
+
+    if (
+        name.includes(
+            "dal"
+        ) ||
+        name.includes(
+            "lentil"
+        )
+    ) {
+
+        return [
+
+            "Moong dal or lentils",
+
+            "Spinach",
+
+            "Tomato",
+
+            "Onion",
+
+            "Garlic",
+
+            "Ginger",
+
+            "Turmeric",
+
+            "Cumin",
+
+            "Coriander powder",
+
+            "Garam masala",
+
+            "Fresh coriander",
+
+            "Salt"
+
+        ];
+
+    }
+
+
+    if (
+        name.includes(
+            "chickpea"
+        ) ||
+        name.includes(
+            "chana"
+        )
+    ) {
+
+        return [
+
+            "Cooked chickpeas",
+
+            "Cucumber",
+
+            "Tomato",
+
+            "Red onion",
+
+            "Lemon juice",
+
+            "Fresh coriander",
+
+            "Roasted cumin",
+
+            "Chaat masala",
+
+            "Black pepper",
+
+            "Salt"
+
+        ];
+
+    }
+
+
+    if (
+        name.includes(
+            "quinoa"
+        )
+    ) {
+
+        return [
+
+            "Cooked quinoa",
+
+            "Mixed vegetables",
+
+            "Chickpeas",
+
+            "Cucumber",
+
+            "Tomato",
+
+            "Lemon juice",
+
+            "Olive oil",
+
+            "Fresh herbs",
+
+            "Black pepper",
+
+            "Salt"
+
+        ];
+
+    }
+
+
+    if (
+        name.includes(
+            "poha"
+        )
+    ) {
+
+        return [
+
+            "Poha",
+
+            "Onion",
+
+            "Green peas",
+
+            "Peanuts",
+
+            "Mustard seeds",
+
+            "Curry leaves",
+
+            "Turmeric",
+
+            "Lemon juice",
+
+            "Fresh coriander",
+
+            "Salt"
+
+        ];
+
+    }
+
+
+    if (
+        name.includes(
+            "oat"
+        )
+    ) {
+
+        return [
+
+            "Rolled oats",
+
+            "Mixed vegetables",
+
+            "Onion",
+
+            "Tomato",
+
+            "Green peas",
+
+            "Cumin",
+
+            "Turmeric",
+
+            "Chilli powder",
+
+            "Fresh coriander",
+
+            "Salt"
+
+        ];
+
+    }
+
+
+    if (
+        name.includes(
+            "salad"
+        )
+    ) {
+
+        return [
+
+            "Mixed greens",
+
+            "Cucumber",
+
+            "Tomato",
+
+            "Carrot",
+
+            "Bell pepper",
+
+            "Beans or chickpeas",
+
+            "Lemon juice",
+
+            "Olive oil",
+
+            "Fresh herbs",
+
+            "Black pepper",
+
+            "Salt"
+
+        ];
+
+    }
+
+
+    return [
+
+        "Mixed seasonal vegetables",
+
+        "Vegetarian protein source",
+
+        "Onion",
+
+        "Tomato",
+
+        "Garlic",
+
+        "Ginger",
+
+        "Fresh herbs",
+
+        "Indian spices",
+
+        "Lemon juice",
+
+        "Olive oil",
+
+        "Black pepper",
+
+        "Salt"
+
+    ];
+
+}
+
+
+/* ================================================================
+   RECIPE STEPS
+   ================================================================ */
+
+function getRecipeSteps(
+    recipe
+) {
+
+    const name =
+        recipe.name.toLowerCase();
+
+
+    if (
+        name.includes(
+            "smoothie"
+        )
+    ) {
+
+        return [
+
+            "Add all ingredients to a blender.",
+
+            "Blend until smooth and creamy.",
+
+            "Taste and adjust the thickness.",
+
+            "Pour into a glass and serve immediately."
+
+        ];
+
+    }
+
+
+    if (
+        name.includes(
+            "salad"
+        )
+    ) {
+
+        return [
+
+            "Wash and prepare the vegetables.",
+
+            "Add all ingredients to a large bowl.",
+
+            "Mix lemon juice, olive oil and seasonings.",
+
+            "Pour the dressing over the bowl.",
+
+            "Toss well and serve fresh."
+
+        ];
+
+    }
+
+
+    if (
+        name.includes(
+            "stir"
+        ) ||
+        name.includes(
+            "noodle"
+        )
+    ) {
+
+        return [
+
+            "Wash and chop all vegetables.",
+
+            "Heat a pan over medium-high heat.",
+
+            "Add oil, garlic and ginger.",
+
+            "Add vegetables and cook until slightly tender.",
+
+            "Add tofu or the main vegetarian protein.",
+
+            "Add sauces and spices.",
+
+            "Toss everything together.",
+
+            "Serve hot."
+
+        ];
+
+    }
+
+
+    return [
+
+        "Prepare and chop all ingredients.",
+
+        "Heat a pan or pot over medium heat.",
+
+        "Add a small amount of oil.",
+
+        "Add onion, garlic and ginger.",
+
+        "Add the main ingredients and spices.",
+
+        "Cook until everything is tender and well combined.",
+
+        "Taste and adjust the seasoning.",
+
+        "Finish with lemon juice and fresh coriander.",
+
+        "Serve warm."
+
+    ];
+
+}
+
+
+/* ================================================================
+   RECIPE NUTRITION
+   ================================================================ */
+
+function renderRecipeNutrition(
+    recipe
+) {
+
+    const values = [
+
+        [
+            "Calories",
+            `${formatNumber(
+                recipe.calories
+            )} kcal`
+        ],
+
+        [
+            "Protein",
+            `${formatDecimal(
+                recipe.protein
+            )} g`
+        ],
+
+        [
+            "Carbs",
+            `${formatDecimal(
+                recipe.carbs
+            )} g`
+        ],
+
+        [
+            "Fats",
+            `${formatDecimal(
+                recipe.fats
+            )} g`
+        ],
+
+        [
+            "Fiber",
+            `${formatDecimal(
+                recipe.fiber
+            )} g`
+        ],
+
+        [
+            "Sodium",
+            `${formatNumber(
+                recipe.sodium
+            )} mg`
+        ],
+
+        [
+            "Potassium",
+            `${formatNumber(
+                recipe.potassium
+            )} mg`
+        ],
+
+        [
+            "Calcium",
+            `${formatNumber(
+                recipe.calcium
+            )} mg`
+        ],
+
+        [
+            "Iron",
+            `${formatDecimal(
+                recipe.iron
+            )} mg`
+        ],
+
+        [
+            "Vitamin C",
+            `${formatDecimal(
+                recipe.vitaminC
+            )} mg`
+        ]
+
+    ];
+
+
+    return values
+        .map(
+            function (item) {
+
+                return `
+
+                    <div class="recipe-nutrition-item">
+
+                        <span>
+                            ${escapeHTML(
+                                item[0]
+                            )}
+                        </span>
+
+                        <strong>
+                            ${escapeHTML(
+                                item[1]
+                            )}
+                        </strong>
+
+                    </div>
+
+                `;
+
+            }
+        )
+        .join("");
+
+}
+
+
+/* ================================================================
+   ADD RECIPE TO MEAL
+   ================================================================ */
+
+function addRecipeToMeal(
+    recipe
+) {
+
+    addMeal({
+
+        id:
+            Date.now(),
+
+        name:
+            recipe.name,
+
+        calories:
+            recipe.calories,
+
+        protein:
+            recipe.protein,
+
+        carbs:
+            recipe.carbs,
+
+        fats:
+            recipe.fats,
+
+        fiber:
+            recipe.fiber,
+
+        sodium:
+            recipe.sodium,
+
+        potassium:
+            recipe.potassium,
+
+        calcium:
+            recipe.calcium,
+
+        iron:
+            recipe.iron,
+
+        vitaminC:
+            recipe.vitaminC
+
+    });
+
+
+    closeRecipeModal();
+
+
+    showToast(
+        `${recipe.name} added to ${capitalize(
+            dashboardState.activeMeal
+        )}.`
+    );
+
+}
+
+
+/* ================================================================
+   10. MANUAL VEGETARIAN FOOD DATABASE
+   ================================================================ */
+
+const MANUAL_FOODS = [
+
+    {
+        name:
+            "Steamed White Rice",
+
+        keywords:
+            [
+                "rice",
+                "chawal",
+                "white rice"
+            ],
+
+        servings: [
+
+            {
+                label:
+                    "1 katori (150 g)",
+
+                base: {
+                    calories: 195,
+                    protein: 4,
+                    carbs: 42,
+                    fats: 0.4,
+                    fiber: 0.6,
+                    sodium: 2,
+                    potassium: 65,
+                    calcium: 15,
+                    iron: 0.3,
+                    vitaminC: 0
+                }
+
+            },
+
+            {
+                label:
+                    "1 bowl (250 g)",
+
+                base: {
+                    calories: 325,
+                    protein: 6.7,
+                    carbs: 70,
+                    fats: 0.7,
+                    fiber: 1,
+                    sodium: 3,
+                    potassium: 108,
+                    calcium: 25,
+                    iron: 0.5,
+                    vitaminC: 0
+                }
+
+            }
+
+        ]
+
+    },
+
+
+    {
+        name:
+            "Roti / Chapati",
+
+        keywords:
+            [
+                "roti",
+                "chapati",
+                "atta",
+                "wheat"
+            ],
+
+        servings: [
+
+            {
+                label:
+                    "1 roti (35 g)",
+
+                base: {
+                    calories: 105,
+                    protein: 3,
+                    carbs: 18,
+                    fats: 2.5,
+                    fiber: 2.5,
+                    sodium: 90,
+                    potassium: 85,
+                    calcium: 12,
+                    iron: 1.1,
+                    vitaminC: 0
+                }
+
+            },
+
+            {
+                label:
+                    "2 rotis (70 g)",
+
+                base: {
+                    calories: 210,
+                    protein: 6,
+                    carbs: 36,
+                    fats: 5,
+                    fiber: 5,
+                    sodium: 180,
+                    potassium: 170,
+                    calcium: 24,
+                    iron: 2.2,
+                    vitaminC: 0
+                }
+
+            },
+
+            {
+                label:
+                    "1 large roti (50 g)",
+
+                base: {
+                    calories: 150,
+                    protein: 4.2,
+                    carbs: 26,
+                    fats: 3.5,
+                    fiber: 3.5,
+                    sodium: 125,
+                    potassium: 120,
+                    calcium: 17,
+                    iron: 1.5,
+                    vitaminC: 0
+                }
+
+            }
+
+        ]
+
+    },
+
+
+    {
+        name:
+            "Dal Tadka",
+
+        keywords:
+            [
+                "dal",
+                "daal",
+                "lentils",
+                "dal tadka"
+            ],
+
+        servings: [
+
+            {
+                label:
+                    "1 katori (150 g)",
+
+                base: {
+                    calories: 190,
+                    protein: 10,
+                    carbs: 25,
+                    fats: 5,
+                    fiber: 8,
+                    sodium: 420,
+                    potassium: 410,
+                    calcium: 46,
+                    iron: 2.5,
+                    vitaminC: 4
+                }
+
+            },
+
+            {
+                label:
+                    "1 bowl (250 g)",
+
+                base: {
+                    calories: 317,
+                    protein: 16.7,
+                    carbs: 41.7,
+                    fats: 8.3,
+                    fiber: 13.3,
+                    sodium: 700,
+                    potassium: 683,
+                    calcium: 77,
+                    iron: 4.2,
+                    vitaminC: 6.7
+                }
+
+            }
+
+        ]
+
+    },
+
+
+    {
+        name:
+            "Paneer",
+
+        keywords:
+            [
+                "paneer",
+                "cottage cheese"
+            ],
+
+        servings: [
+
+            {
+                label:
+                    "50 g cubes",
+
+                base: {
+                    calories: 130,
+                    protein: 11,
+                    carbs: 2,
+                    fats: 9,
+                    fiber: 0,
+                    sodium: 15,
+                    potassium: 90,
+                    calcium: 220,
+                    iron: 1.3,
+                    vitaminC: 0
+                }
+
+            },
+
+            {
+                label:
+                    "100 g cubes",
+
+                base: {
+                    calories: 260,
+                    protein: 22,
+                    carbs: 4,
+                    fats: 18,
+                    fiber: 0,
+                    sodium: 30,
+                    potassium: 180,
+                    calcium: 440,
+                    iron: 2.6,
+                    vitaminC: 0
+                }
+
+            }
+
+        ]
+
+    },
+
+
+    {
+        name:
+            "Curd / Yogurt",
+
+        keywords:
+            [
+                "curd",
+                "dahi",
+                "yogurt",
+                "hung curd"
+            ],
+
+        servings: [
+
+            {
+                label:
+                    "1 katori (150 g)",
+
+                base: {
+                    calories: 95,
+                    protein: 5.2,
+                    carbs: 7,
+                    fats: 4.5,
+                    fiber: 0,
+                    sodium: 70,
+                    potassium: 230,
+                    calcium: 180,
+                    iron: 0.1,
+                    vitaminC: 1
+                }
+
+            },
+
+            {
+                label:
+                    "1 bowl (250 g)",
+
+                base: {
+                    calories: 158,
+                    protein: 8.7,
+                    carbs: 11.7,
+                    fats: 7.5,
+                    fiber: 0,
+                    sodium: 117,
+                    potassium: 383,
+                    calcium: 300,
+                    iron: 0.2,
+                    vitaminC: 1.7
+                }
+
+            }
+
+        ]
+
+    },
+
+
+    {
+        name:
+            "Chickpeas",
+
+        keywords:
+            [
+                "chickpeas",
+                "chana",
+                "kabuli chana"
+            ],
+
+        servings: [
+
+            {
+                label:
+                    "1 katori (120 g)",
+
+                base: {
+                    calories: 197,
+                    protein: 10.7,
+                    carbs: 33,
+                    fats: 3.1,
+                    fiber: 9.1,
+                    sodium: 9,
+                    potassium: 430,
+                    calcium: 59,
+                    iron: 3.1,
+                    vitaminC: 1
+                }
+
+            },
+
+            {
+                label:
+                    "1 bowl (200 g)",
+
+                base: {
+                    calories: 328,
+                    protein: 17.8,
+                    carbs: 55,
+                    fats: 5.2,
+                    fiber: 15.2,
+                    sodium: 15,
+                    potassium: 717,
+                    calcium: 98,
+                    iron: 5.2,
+                    vitaminC: 1.7
+                }
+
+            }
+
+        ]
+
+    },
+
+
+    {
+        name:
+            "Rajma",
+
+        keywords:
+            [
+                "rajma",
+                "kidney beans"
+            ],
+
+        servings: [
+
+            {
+                label:
+                    "1 katori (150 g)",
+
+                base: {
+                    calories: 190,
+                    protein: 13,
+                    carbs: 34,
+                    fats: 0.8,
+                    fiber: 11,
+                    sodium: 10,
+                    potassium: 540,
+                    calcium: 70,
+                    iron: 3.8,
+                    vitaminC: 2
+                }
+
+            },
+
+            {
+                label:
+                    "1 bowl (250 g)",
+
+                base: {
+                    calories: 317,
+                    protein: 21.7,
+                    carbs: 56.7,
+                    fats: 1.3,
+                    fiber: 18.3,
+                    sodium: 17,
+                    potassium: 900,
+                    calcium: 117,
+                    iron: 6.3,
+                    vitaminC: 3.3
+                }
+
+            }
+
+        ]
+
+    },
+
+
+    {
+        name:
+            "Moong Dal",
+
+        keywords:
+            [
+                "moong",
+                "mung",
+                "green gram",
+                "moong dal"
+            ],
+
+        servings: [
+
+            {
+                label:
+                    "1 katori (150 g)",
+
+                base: {
+                    calories: 170,
+                    protein: 11,
+                    carbs: 27,
+                    fats: 2.2,
+                    fiber: 7,
+                    sodium: 12,
+                    potassium: 350,
+                    calcium: 50,
+                    iron: 2.7,
+                    vitaminC: 4
+                }
+
+            },
+
+            {
+                label:
+                    "1 bowl (250 g)",
+
+                base: {
+                    calories: 283,
+                    protein: 18.3,
+                    carbs: 45,
+                    fats: 3.7,
+                    fiber: 11.7,
+                    sodium: 20,
+                    potassium: 583,
+                    calcium: 83,
+                    iron: 4.5,
+                    vitaminC: 6.7
+                }
+
+            }
+
+        ]
+
+    },
+
+
+    {
+        name:
+            "Mixed Vegetables",
+
+        keywords:
+            [
+                "vegetables",
+                "sabzi",
+                "mixed veg",
+                "vegetable"
+            ],
+
+        servings: [
+
+            {
+                label:
+                    "1 katori (150 g)",
+
+                base: {
+                    calories: 110,
+                    protein: 4,
+                    carbs: 16,
+                    fats: 4,
+                    fiber: 5,
+                    sodium: 230,
+                    potassium: 420,
+                    calcium: 60,
+                    iron: 1.5,
+                    vitaminC: 35
+                }
+
+            },
+
+            {
+                label:
+                    "1 bowl (250 g)",
+
+                base: {
+                    calories: 183,
+                    protein: 6.7,
+                    carbs: 26.7,
+                    fats: 6.7,
+                    fiber: 8.3,
+                    sodium: 383,
+                    potassium: 700,
+                    calcium: 100,
+                    iron: 2.5,
+                    vitaminC: 58.3
+                }
+
+            }
+
+        ]
+
+    },
+
+
+    {
+        name:
+            "Banana",
+
+        keywords:
+            [
+                "banana",
+                "kela"
+            ],
+
+        servings: [
+
+            {
+                label:
+                    "1 small piece (80 g)",
+
+                base: {
+                    calories: 71,
+                    protein: 0.9,
+                    carbs: 18,
+                    fats: 0.2,
+                    fiber: 2.1,
+                    sodium: 1,
+                    potassium: 285,
+                    calcium: 4,
+                    iron: 0.2,
+                    vitaminC: 7
+                }
+
+            },
+
+            {
+                label:
+                    "1 medium piece (118 g)",
+
+                base: {
+                    calories: 105,
+                    protein: 1.3,
+                    carbs: 27,
+                    fats: 0.4,
+                    fiber: 3.1,
+                    sodium: 1,
+                    potassium: 422,
+                    calcium: 6,
+                    iron: 0.3,
+                    vitaminC: 10
+                }
+
+            }
+
+        ]
+
+    },
+
+
+    {
+        name:
+            "Apple",
+
+        keywords:
+            [
+                "apple",
+                "seb"
+            ],
+
+        servings: [
+
+            {
+                label:
+                    "1 small piece (150 g)",
+
+                base: {
+                    calories: 78,
+                    protein: 0.4,
+                    carbs: 21,
+                    fats: 0.3,
+                    fiber: 3.6,
+                    sodium: 2,
+                    potassium: 160,
+                    calcium: 9,
+                    iron: 0.2,
+                    vitaminC: 7
+                }
+
+            },
+
+            {
+                label:
+                    "1 medium piece (180 g)",
+
+                base: {
+                    calories: 94,
+                    protein: 0.5,
+                    carbs: 25,
+                    fats: 0.3,
+                    fiber: 4.3,
+                    sodium: 2,
+                    potassium: 194,
+                    calcium: 11,
+                    iron: 0.2,
+                    vitaminC: 8
+                }
+
+            }
+
+        ]
+
+    },
+
+
+    {
+        name:
+            "Almonds",
+
+        keywords:
+            [
+                "almond",
+                "almonds",
+                "badam"
+            ],
+
+        servings: [
+
+            {
+                label:
+                    "10 almonds (12 g)",
+
+                base: {
+                    calories: 69,
+                    protein: 2.5,
+                    carbs: 2.6,
+                    fats: 6,
+                    fiber: 1.5,
+                    sodium: 0,
+                    potassium: 88,
+                    calcium: 31,
+                    iron: 0.4,
+                    vitaminC: 0
+                }
+
+            },
+
+            {
+                label:
+                    "1 handful (28 g)",
+
+                base: {
+                    calories: 164,
+                    protein: 6,
+                    carbs: 6.1,
+                    fats: 14.2,
+                    fiber: 3.5,
+                    sodium: 0,
+                    potassium: 207,
+                    calcium: 76,
+                    iron: 1,
+                    vitaminC: 0
+                }
+
+            }
+
+        ]
+
+    },
+
+
+    {
+        name:
+            "Peanut Butter",
+
+        keywords:
+            [
+                "peanut butter",
+                "groundnut"
+            ],
+
+        servings: [
+
+            {
+                label:
+                    "1 tbsp (16 g)",
+
+                base: {
+                    calories: 94,
+                    protein: 4,
+                    carbs: 3.2,
+                    fats: 8,
+                    fiber: 1,
+                    sodium: 75,
+                    potassium: 104,
+                    calcium: 8,
+                    iron: 0.3,
+                    vitaminC: 0
+                }
+
+            },
+
+            {
+                label:
+                    "2 tbsp (32 g)",
+
+                base: {
+                    calories: 188,
+                    protein: 8,
+                    carbs: 6.4,
+                    fats: 16,
+                    fiber: 2,
+                    sodium: 150,
+                    potassium: 208,
+                    calcium: 16,
+                    iron: 0.6,
+                    vitaminC: 0
+                }
+
+            }
+
+        ]
+
+    },
+
+
+    {
+        name:
+            "Milk",
+
+        keywords:
+            [
+                "milk",
+                "doodh"
+            ],
+
+        servings: [
+
+            {
+                label:
+                    "1 glass (250 ml)",
+
+                base: {
+                    calories: 150,
+                    protein: 8,
+                    carbs: 12,
+                    fats: 8,
+                    fiber: 0,
+                    sodium: 105,
+                    potassium: 300,
+                    calcium: 300,
+                    iron: 0.1,
+                    vitaminC: 0
+                }
+
+            },
+
+            {
+                label:
+                    "1 cup (200 ml)",
+
+                base: {
+                    calories: 120,
+                    protein: 6.4,
+                    carbs: 9.6,
+                    fats: 6.4,
+                    fiber: 0,
+                    sodium: 84,
+                    potassium: 240,
+                    calcium: 240,
+                    iron: 0.1,
+                    vitaminC: 0
+                }
+
+            }
+
+        ]
+
+    },
+
+
+    {
+        name:
+            "Oats",
+
+        keywords:
+            [
+                "oats",
+                "oatmeal",
+                "rolled oats"
+            ],
+
+        servings: [
+
+            {
+                label:
+                    "1/2 cup dry (40 g)",
+
+                base: {
+                    calories: 150,
+                    protein: 5,
+                    carbs: 27,
+                    fats: 3,
+                    fiber: 4,
+                    sodium: 0,
+                    potassium: 140,
+                    calcium: 20,
+                    iron: 1.8,
+                    vitaminC: 0
+                }
+
+            },
+
+            {
+                label:
+                    "1 cup cooked (234 g)",
+
+                base: {
+                    calories: 166,
+                    protein: 6,
+                    carbs: 28,
+                    fats: 3.5,
+                    fiber: 4,
+                    sodium: 9,
+                    potassium: 164,
+                    calcium: 21,
+                    iron: 2.1,
+                    vitaminC: 0
+                }
+
+            }
+
+        ]
+
+    },
+
+
+    {
+        name:
+            "Sweet Potato",
+
+        keywords:
+            [
+                "sweet potato",
+                "shakarkand"
+            ],
+
+        servings: [
+
+            {
+                label:
+                    "1 small piece (100 g)",
+
+                base: {
+                    calories: 90,
+                    protein: 2,
+                    carbs: 21,
+                    fats: 0.2,
+                    fiber: 3,
+                    sodium: 36,
+                    potassium: 475,
+                    calcium: 30,
+                    iron: 0.6,
+                    vitaminC: 19
+                }
+
+            },
+
+            {
+                label:
+                    "1 medium piece (150 g)",
+
+                base: {
+                    calories: 135,
+                    protein: 3,
+                    carbs: 32,
+                    fats: 0.3,
+                    fiber: 4.5,
+                    sodium: 54,
+                    potassium: 713,
+                    calcium: 45,
+                    iron: 0.9,
+                    vitaminC: 29
+                }
+
+            }
+
+        ]
+
+    }
+
+];
+
+
+/* ================================================================
+   MANUAL FOOD STATE
+   ================================================================ */
+
+const manualFoodState = {
+
+    selectedFood:
+        0,
+
+    selectedServing:
+        0
+
+};
+
+
+/* ================================================================
+   11. MANUAL FOOD
+   ================================================================ */
+
+function initManualFood() {
+
+    const modal =
+        document.getElementById(
+            "manualFoodModal"
+        );
+
+
+    const openButton =
+        document.getElementById(
+            "manualFoodBtn"
+        );
+
+
+    const closeButton =
+        document.getElementById(
+            "manualFoodClose"
+        );
+
+
+    const backdrop =
+        document.querySelector(
+            "[data-close-food]"
+        );
+
 
     const search =
-        document
-            .getElementById(
-                'manualFoodSearch'
-            )
-            .value
+        document.getElementById(
+            "manualFoodSearch"
+        );
+
+
+    if (!modal || !openButton) {
+        return;
+    }
+
+
+    openButton.addEventListener(
+        "click",
+        function () {
+
+            modal.hidden =
+                false;
+
+
+            document.body.classList.add(
+                "modal-open"
+            );
+
+
+            renderManualFoodList();
+
+            renderManualFoodDetails();
+
+
+            setTimeout(
+                function () {
+
+                    search?.focus();
+
+                },
+                100
+            );
+
+        }
+    );
+
+
+    closeButton?.addEventListener(
+        "click",
+        closeManualFood
+    );
+
+
+    backdrop?.addEventListener(
+        "click",
+        closeManualFood
+    );
+
+
+    search?.addEventListener(
+        "input",
+        function () {
+
+            renderManualFoodList();
+
+        }
+    );
+
+}
+
+
+function closeManualFood() {
+
+    const modal =
+        document.getElementById(
+            "manualFoodModal"
+        );
+
+
+    if (!modal) {
+        return;
+    }
+
+
+    modal.hidden =
+        true;
+
+
+    if (
+        document.getElementById(
+            "profileModal"
+        )?.hidden !== false
+    ) {
+
+        document.body.classList.remove(
+            "modal-open"
+        );
+
+    }
+
+}
+
+
+function getManualFoodResults() {
+
+    const search =
+        (
+            document.getElementById(
+                "manualFoodSearch"
+            )?.value || ""
+        )
             .trim()
             .toLowerCase();
 
 
-    const select =
-        document.getElementById(
-            'manualFoodSelect'
-        );
+    if (!search) {
+
+        return MANUAL_FOODS;
+
+    }
 
 
-    const foods =
-        FOOD_DATABASE.filter(
-            (food) => {
+    return MANUAL_FOODS.filter(
+        function (food) {
 
-                const text =
-                    [
-                        food.name,
-                        food.category
-                    ]
-                        .join(' ')
-                        .toLowerCase();
-
-
-                return text.includes(
-                    search
-                );
-
-            }
-        );
+            const text =
+                `${food.name} ${
+                    food.keywords.join(
+                        " "
+                    )
+                }`
+                    .toLowerCase();
 
 
-    select.innerHTML = `
-
-        <option value="">
-            Select a food
-        </option>
-
-    `;
-
-
-    foods.forEach(
-        (food) => {
-
-            const option =
-                document.createElement(
-                    'option'
-                );
-
-
-            option.value =
-                food.id;
-
-
-            option.textContent =
-                `${food.name} — ${food.category}`;
-
-
-            select.appendChild(
-                option
+            return text.includes(
+                search
             );
 
         }
@@ -4136,175 +6423,159 @@ function renderFoodOptions() {
 }
 
 
-/* ---------------------------------------------------------------------
-   FOOD SELECTED
---------------------------------------------------------------------- */
+function renderManualFoodList() {
 
-function handleFoodSelect(event) {
-
-    manualFoodState.selectedFood =
-        event.target.value;
-
-
-    updateFoodUnits();
-
-
-    updateManualFoodNutrition();
-
-}
-
-
-/* ---------------------------------------------------------------------
-   UPDATE UNITS
---------------------------------------------------------------------- */
-
-function updateFoodUnits() {
-
-    const food =
-        FOOD_DATABASE.find(
-            (item) =>
-                item.id ===
-                manualFoodState.selectedFood
-        );
-
-
-    const select =
+    const list =
         document.getElementById(
-            'manualFoodUnit'
+            "manualFoodList"
         );
 
 
-    if (!food) {
+    if (!list) {
+        return;
+    }
 
-        select.innerHTML = `
 
-            <option value="serving">
-                1 Serving
-            </option>
+    const foods =
+        getManualFoodResults();
+
+
+    if (!foods.length) {
+
+        list.innerHTML = `
+
+            <div class="food-search-empty">
+
+                No vegetarian food found.
+
+                <br>
+
+                Try rice, dal, roti, paneer, fruit, tofu...
+
+            </div>
 
         `;
-
 
         return;
 
     }
 
 
-    select.innerHTML =
-        '';
+    const selectedFoodObject =
+        MANUAL_FOODS[
+            manualFoodState.selectedFood
+        ];
 
-
-    Object.entries(
-        food.servings
-    )
-        .forEach(
-            ([unit, label]) => {
-
-                const option =
-                    document.createElement(
-                        'option'
-                    );
-
-
-                option.value =
-                    unit;
-
-
-                option.textContent =
-                    label;
-
-
-                select.appendChild(
-                    option
-                );
-
-            }
-        );
-
-
-    /*
-     * Prefer katori when available.
-     */
 
     if (
-        food.servings.katori
+        !selectedFoodObject ||
+        !foods.includes(
+            selectedFoodObject
+        )
     ) {
 
-        select.value =
-            'katori';
+        manualFoodState.selectedFood =
+            MANUAL_FOODS.indexOf(
+                foods[0]
+            );
 
-    } else {
 
-        select.value =
-            Object.keys(
-                food.servings
-            )[0];
+        manualFoodState.selectedServing =
+            0;
 
     }
 
 
-    manualFoodState.unit =
-        select.value;
+    list.innerHTML =
+        "";
+
+
+    foods.forEach(
+        function (food) {
+
+            const index =
+                MANUAL_FOODS.indexOf(
+                    food
+                );
+
+
+            const button =
+                document.createElement(
+                    "button"
+                );
+
+
+            button.type =
+                "button";
+
+
+            button.className =
+                "manual-food-item";
+
+
+            if (
+                index ===
+                manualFoodState.selectedFood
+            ) {
+
+                button.classList.add(
+                    "is-active"
+                );
+
+            }
+
+
+            button.innerHTML = `
+
+                <strong>
+                    ${escapeHTML(
+                        food.name
+                    )}
+                </strong>
+
+                <span>
+                    ${escapeHTML(
+                        food.servings[0].label
+                    )}
+                </span>
+
+            `;
+
+
+            button.addEventListener(
+                "click",
+                function () {
+
+                    manualFoodState.selectedFood =
+                        index;
+
+
+                    manualFoodState.selectedServing =
+                        0;
+
+
+                    renderManualFoodList();
+
+                    renderManualFoodDetails();
+
+                }
+            );
+
+
+            list.appendChild(
+                button
+            );
+
+        }
+    );
 
 }
 
 
-/* ---------------------------------------------------------------------
-   CALCULATE MANUAL FOOD
---------------------------------------------------------------------- */
-
-function calculateManualFood() {
-
-    const food =
-        FOOD_DATABASE.find(
-            (item) =>
-                item.id ===
-                manualFoodState.selectedFood
-        );
-
-
-    if (!food) {
-        return null;
-    }
-
-
-    const quantity =
-        Number(
-            document.getElementById(
-                'manualFoodAmount'
-            ).value
-        );
-
-
-    const unit =
-        document.getElementById(
-            'manualFoodUnit'
-        ).value;
-
-
-    if (
-        !quantity ||
-        quantity <= 0
-    ) {
-        return null;
-    }
-
-
-    const nutrition =
-        food.nutrition;
-
-
-    /*
-     * Quantity is a multiplier:
-     *
-     * 1 katori = 1x
-     * 2 katori = 2x
-     * 0.5 katori = 0.5x
-     */
-
-    const multiplier =
-        quantity;
-
+function scaleNutrition(
+    nutrition,
+    multiplier
+) {
 
     return {
 
@@ -4346,360 +6617,615 @@ function calculateManualFood() {
 
         vitaminC:
             nutrition.vitaminC *
-            multiplier,
-
-        foodName:
-            food.name,
-
-        unit,
-
-        quantity
+            multiplier
 
     };
 
 }
 
 
-/* ---------------------------------------------------------------------
-   UPDATE PREVIEW
---------------------------------------------------------------------- */
+function getCurrentManualFood() {
 
-function updateManualFoodNutrition() {
+    const food =
+        MANUAL_FOODS[
+            manualFoodState.selectedFood
+        ] ||
+        MANUAL_FOODS[0];
 
-    const nutrition =
-        calculateManualFood();
 
+    const serving =
+        food.servings[
+            manualFoodState.selectedServing
+        ] ||
+        food.servings[0];
 
-    if (!nutrition) {
 
-        setManualNutritionValues({
-
-            calories:
-                0,
-
-            protein:
-                0,
-
-            carbs:
-                0,
-
-            fats:
-                0,
-
-            fiber:
-                0,
-
-            sodium:
-                0,
-
-            potassium:
-                0,
-
-            calcium:
-                0,
-
-            iron:
-                0,
-
-            vitaminC:
-                0
-
-        });
-
-
-        return;
-
-    }
-
-
-    setManualNutritionValues(
-        nutrition
-    );
-
-}
-
-
-/* ---------------------------------------------------------------------
-   SET NUTRITION VALUES
---------------------------------------------------------------------- */
-
-function setManualNutritionValues(
-    nutrition
-) {
-
-    setText(
-        'manualCalories',
-        Math.round(
-            nutrition.calories
-        )
-    );
-
-
-    setText(
-        'manualProtein',
-        `${nutrition.protein.toFixed(1)}g`
-    );
-
-
-    setText(
-        'manualCarbs',
-        `${nutrition.carbs.toFixed(1)}g`
-    );
-
-
-    setText(
-        'manualFats',
-        `${nutrition.fats.toFixed(1)}g`
-    );
-
-
-    setText(
-        'manualFiber',
-        `${nutrition.fiber.toFixed(1)}g`
-    );
-
-
-    setText(
-        'manualSodium',
-        `${Math.round(
-            nutrition.sodium
-        )}mg`
-    );
-
-
-    setText(
-        'manualPotassium',
-        `${Math.round(
-            nutrition.potassium
-        )}mg`
-    );
-
-
-    setText(
-        'manualCalcium',
-        `${Math.round(
-            nutrition.calcium
-        )}mg`
-    );
-
-
-    setText(
-        'manualIron',
-        `${nutrition.iron.toFixed(1)}mg`
-    );
-
-
-    setText(
-        'manualVitaminC',
-        `${nutrition.vitaminC.toFixed(1)}mg`
-    );
-
-}
-
-
-/* ---------------------------------------------------------------------
-   ADD MANUAL FOOD
---------------------------------------------------------------------- */
-
-function addManualFood(event) {
-
-    event.preventDefault();
-
-
-    const nutrition =
-        calculateManualFood();
-
-
-    if (!nutrition) {
-
-        return;
-
-    }
-
-
-    const foodName =
-        nutrition.foodName;
-
-
-    const unitLabel =
-        getFoodUnitLabel(
-            nutrition.unit
-        );
-
-
-    dashboardState
-        .meals[
-            dashboardState.activeMeal
-        ]
-        .push({
-
-            id:
-                Date.now(),
-
-            name:
-                `${foodName} (${nutrition.quantity} ${unitLabel})`,
-
-            calories:
-                Math.round(
-                    nutrition.calories
-                ),
-
-            protein:
-                Number(
-                    nutrition.protein
-                        .toFixed(1)
-                ),
-
-            carbs:
-                Number(
-                    nutrition.carbs
-                        .toFixed(1)
-                ),
-
-            fats:
-                Number(
-                    nutrition.fats
-                        .toFixed(1)
-                )
-
-        });
-
-
-    renderMealLog();
-
-
-    updateDashboardTotals();
-
-
-    closeManualFoodModal();
-
-
-    resetManualFoodForm();
-
-}
-
-
-/* ---------------------------------------------------------------------
-   FRIENDLY UNIT
---------------------------------------------------------------------- */
-
-function getFoodUnitLabel(unit) {
-
-    const labels = {
-
-        serving:
-            'serving',
-
-        katori:
-            'katori',
-
-        bowl:
-            'bowl',
-
-        cup:
-            'cup',
-
-        glass:
-            'glass',
-
-        roti:
-            'roti',
-
-        chapati:
-            'chapati',
-
-        piece:
-            'piece',
-
-        tablespoon:
-            'tablespoon',
-
-        teaspoon:
-            'teaspoon'
-
-    };
-
-
-    return (
-        labels[unit] ||
-        unit
-    );
-
-}
-
-
-/* ---------------------------------------------------------------------
-   RESET MANUAL FOOD
---------------------------------------------------------------------- */
-
-function resetManualFoodForm() {
-
-    const form =
+    const amountInput =
         document.getElementById(
-            'manualFoodForm'
+            "manualFoodAmount"
         );
 
 
-    if (form) {
-        form.reset();
+    const amount =
+        Math.max(
+            0.25,
+            Number(
+                amountInput?.value
+            ) || 1
+        );
+
+
+    return {
+
+        food,
+
+        serving,
+
+        amount,
+
+        nutrition:
+            scaleNutrition(
+                serving.base,
+                amount
+            )
+
+    };
+
+}
+
+
+function renderManualFoodDetails() {
+
+    const container =
+        document.getElementById(
+            "manualFoodDetails"
+        );
+
+
+    if (!container) {
+        return;
     }
 
 
-    manualFoodState.selectedFood =
-        '';
+    const current =
+        getCurrentManualFood();
 
 
-    document.getElementById(
-        'manualFoodSelect'
-    ).innerHTML = `
+    const food =
+        current.food;
 
-        <option value="">
-            Select a food
-        </option>
+
+    const serving =
+        current.serving;
+
+
+    const nutrition =
+        current.nutrition;
+
+
+    container.innerHTML = `
+
+        <div class="food-detail-head">
+
+            <div>
+
+                <h3>
+                    ${escapeHTML(
+                        food.name
+                    )}
+                </h3>
+
+                <p>
+                    Vegetarian food • serving-based nutrition
+                </p>
+
+            </div>
+
+            <i
+                class="fa-solid fa-leaf"
+                style="
+                    color:
+                    var(--emerald-strong);
+                "
+            ></i>
+
+        </div>
+
+
+        <div class="food-serving-row">
+
+            <div class="form-field">
+
+                <label
+                    for="manualFoodServing"
+                >
+                    Serving
+                </label>
+
+                <select
+                    id="manualFoodServing"
+                >
+
+                    ${food.servings
+                        .map(
+                            function (
+                                item,
+                                index
+                            ) {
+
+                                return `
+
+                                    <option
+                                        value="${index}"
+                                        ${
+                                            index ===
+                                            manualFoodState.selectedServing
+                                                ? "selected"
+                                                : ""
+                                        }
+                                    >
+
+                                        ${escapeHTML(
+                                            item.label
+                                        )}
+
+                                    </option>
+
+                                `;
+
+                            }
+                        )
+                        .join("")}
+
+                </select>
+
+            </div>
+
+
+            <div class="form-field">
+
+                <label
+                    for="manualFoodAmount"
+                >
+                    Quantity
+                </label>
+
+                <input
+                    id="manualFoodAmount"
+                    type="number"
+                    min="0.25"
+                    max="20"
+                    step="0.25"
+                    value="${current.amount}"
+                >
+
+            </div>
+
+
+            <button
+                class="btn btn-primary food-add-btn"
+                id="addManualFoodToMeal"
+                type="button"
+            >
+
+                <i class="fa-solid fa-plus"></i>
+
+                Add to ${capitalize(
+                    dashboardState.activeMeal
+                )}
+
+            </button>
+
+        </div>
+
+
+        <div class="food-nutrient-group">
+
+            <h4>
+                Macros
+            </h4>
+
+            <div class="food-nutrient-grid">
+
+                ${manualNutrientRow(
+                    "Calories",
+                    `${nutrition.calories.toFixed(0)} kcal`
+                )}
+
+                ${manualNutrientRow(
+                    "Protein",
+                    `${nutrition.protein.toFixed(1)} g`
+                )}
+
+                ${manualNutrientRow(
+                    "Carbs",
+                    `${nutrition.carbs.toFixed(1)} g`
+                )}
+
+                ${manualNutrientRow(
+                    "Fats",
+                    `${nutrition.fats.toFixed(1)} g`
+                )}
+
+                ${manualNutrientRow(
+                    "Fiber",
+                    `${nutrition.fiber.toFixed(1)} g`
+                )}
+
+            </div>
+
+        </div>
+
+
+        <div class="food-nutrient-group">
+
+            <h4>
+                Micronutrients
+            </h4>
+
+            <div class="food-nutrient-grid">
+
+                ${manualNutrientRow(
+                    "Sodium",
+                    `${nutrition.sodium.toFixed(0)} mg`
+                )}
+
+                ${manualNutrientRow(
+                    "Potassium",
+                    `${nutrition.potassium.toFixed(0)} mg`
+                )}
+
+                ${manualNutrientRow(
+                    "Calcium",
+                    `${nutrition.calcium.toFixed(0)} mg`
+                )}
+
+                ${manualNutrientRow(
+                    "Iron",
+                    `${nutrition.iron.toFixed(1)} mg`
+                )}
+
+                ${manualNutrientRow(
+                    "Vitamin C",
+                    `${nutrition.vitaminC.toFixed(0)} mg`
+                )}
+
+            </div>
+
+        </div>
 
     `;
 
 
-    setManualNutritionValues({
+    document
+        .getElementById(
+            "manualFoodServing"
+        )
+        ?.addEventListener(
+            "change",
+            function (event) {
 
-        calories:
-            0,
+                manualFoodState.selectedServing =
+                    Number(
+                        event.target.value
+                    );
 
-        protein:
-            0,
 
-        carbs:
-            0,
+                renderManualFoodDetails();
 
-        fats:
-            0,
+            }
+        );
 
-        fiber:
-            0,
 
-        sodium:
-            0,
+    document
+        .getElementById(
+            "manualFoodAmount"
+        )
+        ?.addEventListener(
+            "input",
+            function () {
 
-        potassium:
-            0,
+                renderManualFoodDetails();
 
-        calcium:
-            0,
+            }
+        );
 
-        iron:
-            0,
 
-        vitaminC:
-            0
+    document
+        .getElementById(
+            "addManualFoodToMeal"
+        )
+        ?.addEventListener(
+            "click",
+            function () {
 
-    });
+                const data =
+                    getCurrentManualFood();
+
+
+                addMeal({
+
+                    id:
+                        Date.now(),
+
+                    name:
+                        `${data.food.name} — ${data.serving.label} × ${data.amount}`,
+
+                    calories:
+                        Math.round(
+                            data.nutrition.calories
+                        ),
+
+                    protein:
+                        round1(
+                            data.nutrition.protein
+                        ),
+
+                    carbs:
+                        round1(
+                            data.nutrition.carbs
+                        ),
+
+                    fats:
+                        round1(
+                            data.nutrition.fats
+                        ),
+
+                    fiber:
+                        round1(
+                            data.nutrition.fiber
+                        ),
+
+                    sodium:
+                        Math.round(
+                            data.nutrition.sodium
+                        ),
+
+                    potassium:
+                        Math.round(
+                            data.nutrition.potassium
+                        ),
+
+                    calcium:
+                        Math.round(
+                            data.nutrition.calcium
+                        ),
+
+                    iron:
+                        round1(
+                            data.nutrition.iron
+                        ),
+
+                    vitaminC:
+                        round1(
+                            data.nutrition.vitaminC
+                        )
+
+                });
+
+
+                closeManualFood();
+
+
+                showToast(
+                    `${data.food.name} added to ${capitalize(
+                        dashboardState.activeMeal
+                    )}.`
+                );
+
+            }
+        );
 
 }
 
 
-/* =====================================================================
-   UTILITIES
-===================================================================== */
+function manualNutrientRow(
+    label,
+    value
+) {
+
+    return `
+
+        <div class="food-nutrient">
+
+            <span>
+                ${escapeHTML(
+                    label
+                )}
+            </span>
+
+            <strong>
+                ${escapeHTML(
+                    value
+                )}
+            </strong>
+
+        </div>
+
+    `;
+
+}
+
+
+/* ================================================================
+   12. PROFILE UI
+   ================================================================ */
+
+function updateProfileUI() {
+
+    if (!profileState.profile) {
+        return;
+    }
+
+
+    const name =
+        profileState.profile.name;
+
+
+    setText(
+        "lifestyleJapaneseGreeting",
+        `Konnichiwa, ${name}-san 🌱`
+    );
+
+
+    setText(
+        "lifestyleUserGreeting",
+        `${name}-san, let's make today a healthy day!`
+    );
+
+
+    if (
+        profileState.nutrition
+    ) {
+
+        setText(
+            "heroCalorieGoal",
+            formatNumber(
+                profileState.nutrition.calories
+            )
+        );
+
+    }
+
+}
+
+
+/* ================================================================
+   13. TOAST
+   ================================================================ */
+
+function showToast(
+    message
+) {
+
+    let toast =
+        document.getElementById(
+            "lifestyleToast"
+        );
+
+
+    if (!toast) {
+
+        toast =
+            document.createElement(
+                "div"
+            );
+
+
+        toast.id =
+            "lifestyleToast";
+
+
+        toast.style.position =
+            "fixed";
+
+
+        toast.style.left =
+            "50%";
+
+
+        toast.style.bottom =
+            "25px";
+
+
+        toast.style.transform =
+            "translateX(-50%) translateY(20px)";
+
+
+        toast.style.padding =
+            "13px 20px";
+
+
+        toast.style.borderRadius =
+            "999px";
+
+
+        toast.style.background =
+            "var(--bg-2, #111827)";
+
+
+        toast.style.color =
+            "var(--text-primary, #fff)";
+
+
+        toast.style.border =
+            "1px solid var(--border-strong, rgba(255,255,255,.15))";
+
+
+        toast.style.boxShadow =
+            "0 18px 50px rgba(0,0,0,.25)";
+
+
+        toast.style.fontSize =
+            "14px";
+
+
+        toast.style.fontWeight =
+            "600";
+
+
+        toast.style.zIndex =
+            "999999";
+
+
+        toast.style.opacity =
+            "0";
+
+
+        toast.style.transition =
+            "opacity .25s ease, transform .25s ease";
+
+
+        document.body.appendChild(
+            toast
+        );
+
+    }
+
+
+    toast.textContent =
+        message;
+
+
+    requestAnimationFrame(
+        function () {
+
+            toast.style.opacity =
+                "1";
+
+            toast.style.transform =
+                "translateX(-50%) translateY(0)";
+
+        }
+    );
+
+
+    clearTimeout(
+        toast._timeout
+    );
+
+
+    toast._timeout =
+        setTimeout(
+            function () {
+
+                toast.style.opacity =
+                    "0";
+
+
+                toast.style.transform =
+                    "translateX(-50%) translateY(20px)";
+
+            },
+            2500
+        );
+
+}
+
+
+/* ================================================================
+   14. UTILITY FUNCTIONS
+   ================================================================ */
 
 function setText(
     id,
@@ -4751,6 +7277,49 @@ function setStyleWidth(
     percentage
 ) {
 
+    const value =
+        Math.max(
+            0,
+            Math.min(
+                Number(
+                    percentage
+                ) || 0,
+                100
+            )
+        );
+
+
+    setStyle(
+        id,
+        "width",
+        `${value}%`
+    );
+
+}
+
+
+function getInputValue(
+    id
+) {
+
+    const element =
+        document.getElementById(
+            id
+        );
+
+
+    return element
+        ? element.value
+        : "";
+
+}
+
+
+function setInputValue(
+    id,
+    value
+) {
+
     const element =
         document.getElementById(
             id
@@ -4759,23 +7328,10 @@ function setStyleWidth(
 
     if (element) {
 
-        element.style.width =
-            `${percentage}%`;
+        element.value =
+            value ?? "";
 
     }
-
-}
-
-
-function formatNumber(
-    number
-) {
-
-    return Number(
-        number
-    ).toLocaleString(
-        'en-US'
-    );
 
 }
 
@@ -4785,7 +7341,7 @@ function capitalize(
 ) {
 
     if (!value) {
-        return '';
+        return "";
     }
 
 
@@ -4797,20 +7353,111 @@ function capitalize(
 }
 
 
+function formatNumber(
+    value
+) {
+
+    return Number(
+        value || 0
+    ).toLocaleString(
+        "en-US",
+        {
+            maximumFractionDigits:
+                0
+        }
+    );
+
+}
+
+
+function formatDecimal(
+    value
+) {
+
+    return Number(
+        value || 0
+    ).toLocaleString(
+        "en-US",
+        {
+            maximumFractionDigits:
+                1
+        }
+    );
+
+}
+
+
+function round1(
+    value
+) {
+
+    return Math.round(
+        Number(value || 0) *
+        10
+    ) / 10;
+
+}
+
+
 function escapeHTML(
     value
 ) {
 
     const div =
         document.createElement(
-            'div'
+            "div"
         );
 
 
     div.textContent =
-        String(value);
+        String(
+            value ??
+            ""
+        );
 
 
     return div.innerHTML;
 
 }
+
+
+function hashString(
+    value
+) {
+
+    let hash =
+        0;
+
+
+    for (
+        let i = 0;
+        i < value.length;
+        i++
+    ) {
+
+        hash =
+            (
+                (
+                    hash << 5
+                ) -
+                hash
+            ) +
+            value.charCodeAt(
+                i
+            );
+
+
+        hash |=
+            0;
+
+    }
+
+
+    return hash;
+
+}
+
+
+/* ================================================================
+   END
+   ================================================================ */
